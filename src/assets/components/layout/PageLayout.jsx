@@ -1,11 +1,20 @@
-import React from 'react'
+import Sidebar from "./Sidebar";
+import Header from "./Header";
 
-const PageLayout = () => {
+const PageLayout = ({ children }) => {
   return (
-    <div>
-      
-    </div>
-  )
-}
+    <div className="flex h-screen bg-gray-100">
+      <Sidebar />
 
-export default PageLayout
+      <div className="flex-1 flex flex-col">
+        <Header />
+
+        <main className="flex-1 overflow-y-auto p-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default PageLayout;

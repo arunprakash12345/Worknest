@@ -1,11 +1,9 @@
-import React from 'react'
-
 const Header = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
-
-export default Header
+    return (
+      <header className="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between">
+        Header
+      </header>
+    );
+  };
+  
+  export default Header;

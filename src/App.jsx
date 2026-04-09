@@ -1,9 +1,12 @@
-import './App.css'
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./assets/routes/AppRoutes";
+
 function App() {
   return (
-    <div className="text-3xl font-bold text-center mt-10">
-      Worknest
-    </div>
-  )
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  );
 }
-export default App
+
+export default App;
