@@ -1,6 +1,6 @@
 import React from "react";
 import PlusIcon from "../../utils/images/plus.svg";
-
+import AddUser from "../../utils/images/addUser.svg";
 const HeroSection = ({ mainMessage, subText, buttonLabel }) => {
   return (
     <div className="max-w-6xl mx-auto">
@@ -16,7 +16,7 @@ const HeroSection = ({ mainMessage, subText, buttonLabel }) => {
         </div>
 
         <button className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white space-x-2 hover:opacity-90 transition">
-          <img src={PlusIcon} alt="plus-icon" />
+          <img src={buttonLabel=== "Invite Member"?AddUser:PlusIcon} alt="plus-icon" className="" />
           {buttonLabel}
         </button>
       </div>
