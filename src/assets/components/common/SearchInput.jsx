@@ -3,13 +3,12 @@ import SearchIcon from '../../utils/images/search.svg';
 
 const SearchInput = ({ placeholder }) => {
   return (
-    <div className='relative flex-1'>
+    <div className='relative w-full'>
       <img
         src={SearchIcon}
         alt="search-icon"
         className='absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 size-3.5'
       />
-
       <input
         type="text"
         placeholder={placeholder}

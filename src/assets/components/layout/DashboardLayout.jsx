@@ -13,7 +13,6 @@ const DashboardLayout = () => {
         <div className="sticky top-0 z-10">
           <Header />
         </div>
-
         <main className="flex-1 p-8">
           <Outlet />
         </main>

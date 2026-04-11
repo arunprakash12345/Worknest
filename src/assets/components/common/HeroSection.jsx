@@ -1,9 +1,9 @@
 import React from "react";
-import PlusIcon from "../../utils/images/plus.svg";
-import AddUser from "../../utils/images/addUser.svg";
+import PlusIcon from "../../utils/icons/plusIcon";
+import AddUserIcon from "../../utils/icons/addUser";
 const HeroSection = ({ mainMessage, subText, buttonLabel }) => {
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="mx-auto">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-1">
@@ -14,9 +14,12 @@ const HeroSection = ({ mainMessage, subText, buttonLabel }) => {
             {subText}
           </p>
         </div>
-
-        <button className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white space-x-2 hover:opacity-90 transition">
-          <img src={buttonLabel=== "Invite Member"?AddUser:PlusIcon} alt="plus-icon" className="" />
+        <button className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white space-x-2 hover:opacity-90 transition cursor-pointer">
+          {/* <img src={} alt="plus-icon" className="" /> */}
+          {
+            buttonLabel=== "Invite Member"?<AddUserIcon/>:<PlusIcon/>
+          }
+          
           {buttonLabel}
         </button>
       </div>
