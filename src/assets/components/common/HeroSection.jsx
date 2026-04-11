@@ -10,18 +10,14 @@ const HeroSection = ({ mainMessage, subText, buttonLabel }) => {
             {mainMessage}
           </h1>
 
-          <p className="text-gray-500 text-sm">
-            {subText}
-          </p>
+          <p className="text-gray-500 text-sm">{subText}</p>
         </div>
-        <button className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white space-x-2 hover:opacity-90 transition cursor-pointer">
-          {/* <img src={} alt="plus-icon" className="" /> */}
-          {
-            buttonLabel=== "Invite Member"?<AddUserIcon/>:<PlusIcon/>
-          }
-          
-          {buttonLabel}
-        </button>
+        {buttonLabel && (
+          <button className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white space-x-2 hover:opacity-90 transition cursor-pointer">
+            {buttonLabel === "Invite Member" ? <AddUserIcon /> : <PlusIcon />}
+            {buttonLabel}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,38 +1,25 @@
-import React from 'react';
-import HeroSection from '../components/common/HeroSection';
-import InprogressIcon from '../utils/images/inprogress.svg';
-import CompletedIcon from '../utils/images/completed.svg';
-import StudentsIcon from '../utils/images/completed.svg';
-
+import React from "react";
+import HeroSection from "../components/common/HeroSection";
+import KPI from "../components/layout/KPI";
+import SearchInput from "../components/common/SearchInput";
+import studentsKPIData from "../data/studentsKPIData";
+import DataTable from "../components/common/DataTable";
+import { columns, studentsData } from "../data/studentsTableData";
 const Students = () => {
-  const studentsKPIData = [
-    {
-      title: "Total Members",
-      subText: "",
-      img: InprogressIcon,
-      value: "1",
-      iconBg: "bg-blue-500/10",
-    },
-    {
-      title: "Completed Projects",
-      subText: "",
-      img: CompletedIcon,
-      value: "0",
-      iconBg: "bg-green-500/10",
-    },
-    {
-      title: "My Tasks",
-      subText: "",
-      img: StudentsIcon,
-      value: "0",
-      iconBg: "",
-    }
-  ];
   return (
     <div>
-      <HeroSection mainMessage="Students" subText="Manage students and their contributions" buttonLabel="Invite Member"/>
+      <HeroSection
+        mainMessage="Students"
+        subText="Manage students and their contributions"
+        buttonLabel="Invite Member"
+      />
+      <KPI data={studentsKPIData} />
+      <div className="w-full">
+        <SearchInput placeholder="Search students..." />
+      </div>
+      <DataTable columns={columns} data={studentsData} />
     </div>
-  )
-}
+  );
+};
 
-export default Students
+export default Students;
