@@ -6,6 +6,7 @@ import overdue from "../utils/images/overdueGray.svg";
 import inprogress from "../utils/images/inprogressGray.svg";
 import SectionCard from "../components/common/SectionCard";
 import dashboardKPIData from "../data/dashboardKPIData";
+
 const Dashboard = () => {
   return (
     <>
