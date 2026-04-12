@@ -1,13 +1,13 @@
 import React from "react";
 import StudentsIcon from "../../utils/icons/StudentsIcon";
 import CalendarIcon from "../../utils/icons/CalenderIcon";
-
+import { Link } from "react-router-dom";
 const ProjectCard = ({ page, data }) => {
   const isBatchesTab = page === "Batches";
   return (
     <div className="divide-y divide-zinc-200">
-      <a
-        href=""
+      <Link
+        to={`/batches/${data.id}`}
         className={`group block p-6 hover:bg-zinc-50 transition-colors  rounded-lg ${
           isBatchesTab
             ? "border border-gray-200"
@@ -17,8 +17,10 @@ const ProjectCard = ({ page, data }) => {
         <div className="flex items-start justify-between mb-3 gap-3">
           <div className="flex-1 min-w-0">
             <h3
-              className={`font-semibold mb-1 text-zinc-800 truncate ${
-                isBatchesTab ? "group-hover:text-blue-500" : ""
+              className={`font-semibold mb-1 truncate ${
+                isBatchesTab
+                  ? "text-zinc-800 group-hover:text-blue-500 transition-colors"
+                  : "text-zinc-800"
               }`}
             >
               {data?.title}
@@ -62,7 +64,7 @@ const ProjectCard = ({ page, data }) => {
             ></div>
           </div>
         </div>
-      </a>
+      </Link>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React from "react";
 import ProjectCard from "./ProjectCard";
 import RecentActivity from "./RecentActivity";
 import batchData from "../../data/batchData";
+import { Link } from "react-router-dom";
 
 const SectionCard = ({ type }) => {
   return (
@@ -13,7 +14,11 @@ const SectionCard = ({ type }) => {
           href=""
           className="text-sm text-zinc-600 hover:text-zinc-700 flex items-center"
         >
-          {type === "Project Overview" ? "View all" : ""}
+          {type === "Project Overview" ? (
+            <Link to={"/batches"}>View all</Link>
+          ) : (
+            ""
+          )}
         </a>
       </div>
 
