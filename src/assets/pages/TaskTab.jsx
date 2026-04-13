@@ -23,11 +23,10 @@ const TaskTab = ({ id }) => {
           />
         ))}
       </div>
-
       <DataTable
         columns={taskColumns}
         data={batch?.tasks || []}
-        onRowClick={(task) => navigate(`/tasks/${task.id}`)}
+        onRowClick={(task) => navigate(`/batches/${id}/tasks/${task.id}`)}
       />
     </div>
   );
