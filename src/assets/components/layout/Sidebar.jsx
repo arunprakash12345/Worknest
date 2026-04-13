@@ -12,7 +12,7 @@ const navItems = [
     icon: DashboardIcon,
   },
   {
-    label: "Projects",
+    label: "Batches",
     path: "/batches",
     icon: ProjectIcon,
   },

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import batchData from "../data/batchData";
 import HeroSection from "../components/common/HeroSection";
@@ -6,12 +6,13 @@ import ArrowLeftIcon from "../utils/icons/arrowLeft";
 import { Link } from "react-router-dom";
 import batchDetailspageData from "../data/batchDetailspageData";
 import KPI from "../components/layout/KPI";
-import batchDetailFilter from "../data/BatchDetailFilter";
-import Dropdown from "../components/common/Dropdown";
+
 import Tab from "../components/common/Tab";
 import batchTab from "../data/batchTab";
+import BatchTabLayout from "./BatchTabLayout";
 const BatchDetails = () => {
   const { batchId } = useParams();
+  const [tabId, setTabId] = useState(0);
   const batch = batchData.find((item) => item.id === Number(batchId));
   return (
     <div>
@@ -33,24 +34,17 @@ const BatchDetails = () => {
       <KPI data={batchDetailspageData} />
       <div className="inline-flex flex-wrap gap-2 border border-zinc-200 rounded overflow-hidden mb-4">
         {Object.values(batchTab).map((tab, index) => (
-          <Tab
-            key={tab.label}
-            label={tab.label}
-            icon={tab.icon}
-            active={index === 0}
-          />
+          <div key={tab.label} onClick={() => setTabId(index)}>
+            <Tab
+              key={tab.label}
+              label={tab.label}
+              icon={tab.icon}
+              active={index === tabId}
+            />
+          </div>
         ))}
       </div>
-      <div className="flex gap-3">
-        {Object.values(batchDetailFilter).map((dropdown) => (
-          <Dropdown
-            key={dropdown.id}
-            name={dropdown.name}
-            id={dropdown.id}
-            values={dropdown.values}
-          />
-        ))}
-      </div>
+      <BatchTabLayout index={tabId} id={batchId} />
     </div>
   );
 };
