@@ -24,7 +24,7 @@ const DataTable = ({ columns, data, onRowClick }) => {
               }`}
             >
               {columns.map((column) => (
-                <td key={column.key} className="px-4 py-2 text-sm">
+                <td key={column.key} className="px-4 py-4 text-sm">
                   {column.render ? column.render(item) : item[column.key]}
                 </td>
               ))}

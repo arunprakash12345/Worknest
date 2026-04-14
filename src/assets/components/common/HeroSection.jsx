@@ -1,7 +1,8 @@
 import React from "react";
 import PlusIcon from "../../utils/icons/plusIcon";
 import AddUserIcon from "../../utils/icons/addUser";
-const HeroSection = ({ mainMessage, subText, buttonLabel }) => {
+
+const HeroSection = ({ mainMessage, subText, buttonLabel, onButtonClick }) => {
   return (
     <div className="mx-auto">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
@@ -12,9 +13,14 @@ const HeroSection = ({ mainMessage, subText, buttonLabel }) => {
 
           <p className="text-gray-500 text-sm">{subText}</p>
         </div>
+
         {buttonLabel && (
-          <button className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white space-x-2 hover:opacity-90 transition cursor-pointer">
+          <button
+            onClick={onButtonClick}
+            className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white space-x-2 hover:opacity-90 transition cursor-pointer"
+          >
             {buttonLabel === "Invite Member" ? <AddUserIcon /> : <PlusIcon />}
+
             {buttonLabel}
           </button>
         )}

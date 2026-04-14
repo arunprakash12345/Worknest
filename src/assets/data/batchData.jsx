@@ -24,6 +24,30 @@ const batchData = [
         },
         dueDate: "15 April",
       },
+      {
+        id: 2,
+        title: "Student Dashboard UI",
+        type: "TASK",
+        priority: "HIGH",
+        status: "IN PROGRESS",
+        assignee: {
+          name: "Arun Prakash G",
+          image: ProfileImage,
+        },
+        dueDate: "15 April",
+      },
+      {
+        id: 3,
+        title: "Student Dashboard",
+        type: "TASK",
+        priority: "HIGH",
+        status: "IN PROGRESS",
+        assignee: {
+          name: "Arun Prakash G",
+          image: ProfileImage,
+        },
+        dueDate: "15 April",
+      },
     ],
 
     members: [
@@ -46,20 +70,7 @@ const batchData = [
     inProgressTasks: 4,
     totalMembers: 22,
 
-    tasks: [
-      {
-        id: 1,
-        title: "Prepare CAD Model Submission",
-        type: "TASK",
-        priority: "MEDIUM",
-        status: "TO DO",
-        assignee: {
-          name: "Rahul Kumar",
-          image: ProfileImage,
-        },
-        dueDate: "20 April",
-      },
-    ],
+    tasks: [],
 
     members: [
       {
