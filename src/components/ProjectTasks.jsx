@@ -13,6 +13,7 @@ import {
   Trash,
   XIcon,
   Zap,
+  UsersIcon,
 } from "lucide-react";
 
 const typeIcons = {
@@ -41,7 +42,7 @@ const priorityTexts = {
   },
 };
 
-const ProjectTasks = ({ tasks }) => {
+const ProjectTasks = ({ tasks, onTaskUpdated }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [selectedTasks, setSelectedTasks] = useState([]);
@@ -76,44 +77,76 @@ const ProjectTasks = ({ tasks }) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleStatusChange = async (taskId, newStatus) => {
-    try {
-      toast.loading("Updating status...");
-
-      //  Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      let updatedTask = structuredClone(tasks.find((t) => t.id === taskId));
-      updatedTask.status = newStatus;
-      dispatch(updateTask(updatedTask));
-
-      toast.dismissAll();
-      toast.success("Task status updated successfully");
-    } catch (error) {
-      toast.dismissAll();
-      toast.error(error?.response?.data?.message || error.message);
-    }
-  };
-
   const handleDelete = async () => {
     try {
-      const confirm = window.confirm(
+      if (selectedTasks.length === 0) {
+        toast.error("No tasks selected");
+        return;
+      }
+
+      const confirmDelete = window.confirm(
         "Are you sure you want to delete the selected tasks?",
       );
-      if (!confirm) return;
+      if (!confirmDelete) return;
 
       toast.loading("Deleting tasks...");
 
-      //  Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const token = localStorage.getItem("token");
 
-      dispatch(deleteTask(selectedTasks));
+      const res = await fetch("http://localhost:5002/api/tasks", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ taskIds: selectedTasks }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message);
 
       toast.dismissAll();
       toast.success("Tasks deleted successfully");
+
+      // refresh tasks
+      onTaskUpdated();
+
+      // clear selection
+      setSelectedTasks([]);
     } catch (error) {
       toast.dismissAll();
-      toast.error(error?.response?.data?.message || error.message);
+      toast.error(error.message);
+    }
+  };
+  const handleSelectTask = (taskId) => {
+    setSelectedTasks((prev) =>
+      prev.includes(taskId)
+        ? prev.filter((id) => id !== taskId)
+        : [...prev, taskId],
+    );
+  };
+  const handleStatusChange = async (taskId, newStatus) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(
+        `http://localhost:5002/api/tasks/${taskId}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        },
+      );
+
+      if (!res.ok) throw new Error("Failed to update");
+
+      onTaskUpdated();
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -204,7 +237,7 @@ const ProjectTasks = ({ tasks }) => {
                       onChange={() =>
                         selectedTasks.length > 1
                           ? setSelectedTasks([])
-                          : setSelectedTasks(tasks.map((t) => t.id))
+                          : setSelectedTasks(tasks.map((t) => t._id))
                       }
                       checked={selectedTasks.length === tasks.length}
                       type="checkbox"
@@ -244,13 +277,16 @@ const ProjectTasks = ({ tasks }) => {
                             type="checkbox"
                             className="size-3 accent-zinc-600 dark:accent-zinc-500"
                             onChange={() =>
-                              selectedTasks.includes(task.id)
-                                ? setSelectedTasks(
-                                    selectedTasks.filter((i) => i !== task.id),
+                              selectedTasks.includes(task._id)
+                                ? setSelectedTasks((prev) =>
+                                    prev.filter((i) => i !== task._id),
                                   )
-                                : setSelectedTasks((prev) => [...prev, task.id])
+                                : setSelectedTasks((prev) => [
+                                    ...prev,
+                                    task._id,
+                                  ])
                             }
-                            checked={selectedTasks.includes(task.id)}
+                            checked={selectedTasks.includes(task._id)}
                           />
                         </td>
                         <td className="px-4 pl-0 py-2">{task.title}</td>
@@ -274,12 +310,11 @@ const ProjectTasks = ({ tasks }) => {
                           className="px-4 py-2"
                         >
                           <select
-                            name="status"
-                            onChange={(e) =>
-                              handleStatusChange(task.id, e.target.value)
-                            }
                             value={task.status}
-                            className="group-hover:ring ring-zinc-100 outline-none px-2 pr-4 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200 cursor-pointer"
+                            onChange={(e) =>
+                              handleStatusChange(task._id, e.target.value)
+                            }
+                            className="text-xs px-2 py-1 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900"
                           >
                             <option value="TODO">To Do</option>
                             <option value="IN_PROGRESS">In Progress</option>
@@ -287,13 +322,14 @@ const ProjectTasks = ({ tasks }) => {
                           </select>
                         </td>
                         <td className="px-4 py-2">
-                          <div className="flex items-center gap-2">
-                            <img
-                              src={task.assignee?.image}
-                              className="size-5 rounded-full"
-                              alt="avatar"
-                            />
-                            {task.assignee?.name || "-"}
+                          <div className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                            <UsersIcon className="size-4 text-zinc-400" />
+
+                            {task.assignedTo ? (
+                              <span>1 assigned</span>
+                            ) : (
+                              <span className="text-zinc-400">Unassigned</span>
+                            )}
                           </div>
                         </td>
                         <td className="px-4 py-2">
@@ -342,13 +378,13 @@ const ProjectTasks = ({ tasks }) => {
                         type="checkbox"
                         className="size-4 accent-zinc-600 dark:accent-zinc-500"
                         onChange={() =>
-                          selectedTasks.includes(task.id)
-                            ? setSelectedTasks(
-                                selectedTasks.filter((i) => i !== task.id),
+                          selectedTasks.includes(task._id)
+                            ? setSelectedTasks((prev) =>
+                                prev.filter((i) => i !== task._id),
                               )
-                            : setSelectedTasks((prev) => [...prev, task.id])
+                            : setSelectedTasks((prev) => [...prev, task._id])
                         }
-                        checked={selectedTasks.includes(task.id)}
+                        checked={selectedTasks.includes(task._id)}
                       />
                     </div>
 
@@ -384,12 +420,15 @@ const ProjectTasks = ({ tasks }) => {
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                      <img
-                        src={task.assignee?.image}
-                        className="size-5 rounded-full"
-                        alt="avatar"
-                      />
-                      {task.assignee?.name || "-"}
+                      <UsersIcon className="size-4 text-zinc-400" />
+
+                      {task.assignees?.length > 0 ? (
+                        <span>{task.assignees.length} assigned</span>
+                      ) : task.assignee ? (
+                        <span>1 assigned</span>
+                      ) : (
+                        <span className="text-zinc-400">Unassigned</span>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">

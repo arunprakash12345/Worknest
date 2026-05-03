@@ -30,7 +30,7 @@ const taskSchema = new mongoose.Schema(
       ref: "Batch",
     },
 
-    assignee: {
+    assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },

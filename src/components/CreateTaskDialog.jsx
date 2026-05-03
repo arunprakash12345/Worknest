@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useSelector } from "react-redux";
 import { format } from "date-fns";
@@ -15,7 +15,7 @@ export default function CreateTaskDialog({
   );
 
   const project = currentWorkspace?.projects?.find((p) => p.id === projectId);
-
+  const [users, setUsers] = useState([]);
   const teamMembers = project?.members || [];
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,6 +37,10 @@ export default function CreateTaskDialog({
       setIsSubmitting(true);
 
       const token = localStorage.getItem("token");
+      console.log("Payload:", {
+        ...formData,
+        assignedTo: formData.assignedTo,
+      });
 
       const res = await fetch("http://localhost:5002/api/tasks", {
         method: "POST",
@@ -83,6 +87,22 @@ export default function CreateTaskDialog({
       setIsSubmitting(false);
     }
   };
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://localhost:5002/api/users", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      setUsers(data);
+    };
+
+    fetchUsers();
+  }, []);
 
   if (!showCreateTask) return null;
 
@@ -191,10 +211,11 @@ export default function CreateTaskDialog({
             >
               <option value="">Unassigned</option>
 
-              {/* TEMP dummy users (replace later) */}
-              <option value="user1">Arun</option>
-              <option value="user2">Student A</option>
-              <option value="user3">Student B</option>
+              {users.map((user) => (
+                <option key={user._id} value={user._id}>
+                  {user.name}
+                </option>
+              ))}
             </select>
           </div>
 

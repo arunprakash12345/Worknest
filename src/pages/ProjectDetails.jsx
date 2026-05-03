@@ -201,7 +201,9 @@ export default function ProjectDetail() {
         </div>
 
         <div className="mt-6">
-          {activeTab === "tasks" && <ProjectTasks tasks={tasks} />}
+          {activeTab === "tasks" && (
+            <ProjectTasks tasks={tasks} onTaskUpdated={fetchProject} />
+          )}
           {activeTab === "analytics" && (
             <ProjectAnalytics tasks={tasks} project={project} />
           )}

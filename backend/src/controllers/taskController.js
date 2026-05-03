@@ -44,3 +44,34 @@ export const getTasksByBatch = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const updateTaskStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const task = await Task.findByIdAndUpdate(
+      id,
+      { status },
+      { returnDocument: "after" },
+    );
+
+    res.json(task);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const deleteTasks = async (req, res) => {
+  try {
+    const { taskIds } = req.body;
+
+    await Task.deleteMany({
+      _id: { $in: taskIds },
+    });
+
+    res.json({ message: "Tasks deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
