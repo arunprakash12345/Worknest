@@ -3,10 +3,37 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../features/themeSlice";
 import { MoonIcon, SunIcon } from "lucide-react";
 import { assets } from "../assets/assets";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useState, useEffect, useRef } from "react";
 
 const Navbar = ({ setIsSidebarOpen }) => {
   const dispatch = useDispatch();
   const { theme } = useSelector((state) => state.theme);
+  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    toast.success("Logged out successfully 👋");
+
+    navigate("/auth", { replace: true });
+  };
+  const dropdownRef = useRef();
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="w-full bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 px-6 xl:px-16 py-3 flex-shrink-0">
@@ -47,11 +74,33 @@ const Navbar = ({ setIsSidebarOpen }) => {
           </button>
 
           {/* User Button */}
-          <img
-            src={assets.profile_img_a}
-            alt="User Avatar"
-            className="size-7 rounded-full"
-          />
+          <div ref={dropdownRef} className="relative">
+            <div className="relative">
+              <img
+                src={assets.profile_img_a}
+                alt="User Avatar"
+                className="size-7 rounded-full cursor-pointer"
+                onClick={() => setIsOpen((prev) => !prev)}
+              />
+              {isOpen && (
+                <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-lg p-2 z-50">
+                  <div className="px-3 py-2 border-b border-gray-200 dark:border-zinc-700">
+                    <p className="text-sm font-medium text-gray-800 dark:text-white">
+                      Arun Prakash
+                    </p>
+                    <p className="text-xs text-gray-500">Admin</p>
+                  </div>
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

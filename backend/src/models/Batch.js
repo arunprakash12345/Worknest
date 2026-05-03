@@ -3,32 +3,50 @@ import mongoose from "mongoose";
 const batchSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    description: { type: String },
+    description: String,
 
     status: {
       type: String,
-      enum: ["ACTIVE", "PLANNING", "COMPLETED"],
+      enum: ["PLANNING", "ACTIVE", "COMPLETED", "ON_HOLD", "CANCELLED"],
       default: "PLANNING",
     },
 
-    category: { type: String },
+    priority: {
+      type: String,
+      enum: ["LOW", "MEDIUM", "HIGH"],
+      default: "MEDIUM",
+    },
 
-    startDate: { type: Date },
-    endDate: { type: Date },
-
-    members: [
-      {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        role: {
-          type: String,
-          enum: ["ADMIN", "MENTOR", "STUDENT"],
-        },
-      },
-    ],
+    startDate: Date,
+    endDate: Date,
+    teamLead: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+    },
+
+    members: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        role: {
+          type: String,
+          enum: ["ADMIN", "MEMBER"],
+          default: "MEMBER",
+        },
+      },
+    ],
+
+    progress: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true },

@@ -73,7 +73,7 @@ const ProjectOverview = () => {
               {projects.slice(0, 5).map((project) => (
                 <Link
                   key={project.id}
-                  to={`/projectsDetail?id=${project.id}&tab=tasks`}
+                  to={`/batches/${project.id}?tab=tasks`}
                   className="block p-6 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors"
                 >
                   <div className="flex items-start justify-between mb-3">
