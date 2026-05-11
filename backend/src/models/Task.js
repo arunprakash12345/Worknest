@@ -2,8 +2,14 @@ import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true },
-    description: { type: String },
+    title: {
+      type: String,
+      required: true,
+    },
+
+    description: {
+      type: String,
+    },
 
     type: {
       type: String,
@@ -23,24 +29,39 @@ const taskSchema = new mongoose.Schema(
       default: "TODO",
     },
 
-    dueDate: { type: Date },
+    dueDate: {
+      type: Date,
+    },
 
     batch: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Batch",
     },
 
-    assignedTo: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
+    //  MULTI ASSIGNEE SUPPORT
+    assignees: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+
+        status: {
+          type: String,
+          enum: ["TODO", "IN_PROGRESS", "DONE"],
+          default: "TODO",
+        },
+      },
+    ],
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
 export default mongoose.model("Task", taskSchema);

@@ -11,7 +11,7 @@ export default function CreateTaskDialog({
   onTaskCreated,
 }) {
   const currentWorkspace = useSelector(
-    (state) => state.workspace?.currentWorkspace || null,
+    (state) => state.workspace?.currentWorkspace || null
   );
 
   const project = currentWorkspace?.projects?.find((p) => p.id === projectId);
@@ -37,11 +37,7 @@ export default function CreateTaskDialog({
       setIsSubmitting(true);
 
       const token = localStorage.getItem("token");
-      console.log("Payload:", {
-        ...formData,
-        assignedTo: formData.assignedTo,
-      });
-
+      console.log("FORM DATA:", formData);
       const res = await fetch("http://localhost:5002/api/tasks", {
         method: "POST",
         headers: {
@@ -51,12 +47,12 @@ export default function CreateTaskDialog({
         body: JSON.stringify({
           title: formData.title,
           description: formData.description,
-          type: formData.type,
           status: formData.status,
+          type: formData.type,
           priority: formData.priority,
           batch: projectId,
-          assignedTo: formData.assignedTo || null,
-          dueDate: formData.due_date || null,
+          assignedTo: formData.assignedTo,
+          dueDate: formData.due_date,
         }),
       });
 
@@ -198,6 +194,7 @@ export default function CreateTaskDialog({
           </div>
 
           {/* Assignee 🔥 */}
+
           <div>
             <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200">
               Assignee
@@ -205,11 +202,16 @@ export default function CreateTaskDialog({
             <select
               value={formData.assignedTo}
               onChange={(e) =>
-                setFormData({ ...formData, assignedTo: e.target.value })
+                setFormData({
+                  ...formData,
+                  assignedTo: e.target.value,
+                })
               }
-              className="mt-1 w-full rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 text-sm py-2 px-2 focus:outline-none focus:border-blue-500"
+              className="mt-1 w-full rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm py-2 px-2"
             >
-              <option value="">Unassigned</option>
+              <option value="">Select assignee</option>
+
+              <option value="ALL">All Students</option>
 
               {users.map((user) => (
                 <option key={user._id} value={user._id}>

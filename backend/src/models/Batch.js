@@ -31,18 +31,19 @@ const batchSchema = new mongoose.Schema(
     },
 
     members: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-        role: {
-          type: String,
-          enum: ["ADMIN", "MEMBER"],
-          default: "MEMBER",
-        },
-      },
-    ],
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    role: {
+      type: String,
+      enum: ["ADMIN", "MEMBER"],
+      default: "MEMBER",
+    },
+  },
+],
 
     progress: {
       type: Number,

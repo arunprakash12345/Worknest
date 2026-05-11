@@ -37,7 +37,7 @@ const Auth = () => {
     }
   };
   const handleLogin = async () => {
-    console.log("LOGIN CLICKED");
+    // console.log("LOGIN CLICKED");
     const res = await fetch("http://localhost:5002/api/auth/login", {
       method: "POST",
       headers: {
@@ -50,8 +50,6 @@ const Auth = () => {
     });
 
     const data = await res.json();
-    console.log("STATUS:", res.status);
-    console.log("DATA:", data);
 
     if (res.ok) {
       localStorage.setItem("token", data.token);

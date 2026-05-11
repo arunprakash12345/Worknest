@@ -42,7 +42,7 @@ const priorityTexts = {
   },
 };
 
-const ProjectTasks = ({ tasks, onTaskUpdated }) => {
+const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [selectedTasks, setSelectedTasks] = useState([]);
@@ -54,11 +54,16 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
     assignee: "",
   });
 
-  const assigneeList = useMemo(
-    () =>
-      Array.from(new Set(tasks.map((t) => t.assignee?.name).filter(Boolean))),
-    [tasks],
-  );
+  const assigneeList = useMemo(() => {
+    return Array.from(
+      new Set(
+        tasks.flatMap(
+          (task) =>
+            task.assignees?.map((a) => a.user?.name || "Unknown User") || []
+        )
+      )
+    );
+  }, [tasks]);
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
@@ -67,7 +72,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
         (!status || task.status === status) &&
         (!type || task.type === type) &&
         (!priority || task.priority === priority) &&
-        (!assignee || task.assignee?.name === assignee)
+        (!assignee || task.assignees?.some((a) => a.user?.name === assignee))
       );
     });
   }, [filters, tasks]);
@@ -85,7 +90,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
       }
 
       const confirmDelete = window.confirm(
-        "Are you sure you want to delete the selected tasks?",
+        "Are you sure you want to delete the selected tasks?"
       );
       if (!confirmDelete) return;
 
@@ -123,7 +128,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
     setSelectedTasks((prev) =>
       prev.includes(taskId)
         ? prev.filter((id) => id !== taskId)
-        : [...prev, taskId],
+        : [...prev, taskId]
     );
   };
   const handleStatusChange = async (taskId, newStatus) => {
@@ -139,7 +144,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ status: newStatus }),
-        },
+        }
       );
 
       if (!res.ok) throw new Error("Failed to update");
@@ -189,7 +194,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
               className=" border not-dark:bg-white border-zinc-300 dark:border-zinc-800 outline-none px-3 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200"
             >
               {options[name].map((opt, idx) => (
-                <option key={idx} value={opt.value}>
+                <option key={`${name}-${opt.value}`} value={opt.value}>
                   {opt.label}
                 </option>
               ))}
@@ -235,7 +240,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
                   <th className="pl-2 pr-1">
                     <input
                       onChange={() =>
-                        selectedTasks.length > 1
+                        selectedTasks.length === tasks.length
                           ? setSelectedTasks([])
                           : setSelectedTasks(tasks.map((t) => t._id))
                       }
@@ -264,7 +269,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
                         key={task._id || task.id}
                         onClick={() =>
                           navigate(
-                            `/taskDetails?projectId=${task.projectId}&taskId=${task.id}`,
+                            `/batches/${projectId}?tab=summary&taskId=${task._id}`
                           )
                         }
                         className=" border-t border-zinc-300 dark:border-zinc-800 group hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all cursor-pointer"
@@ -279,7 +284,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
                             onChange={() =>
                               selectedTasks.includes(task._id)
                                 ? setSelectedTasks((prev) =>
-                                    prev.filter((i) => i !== task._id),
+                                    prev.filter((i) => i !== task._id)
                                   )
                                 : setSelectedTasks((prev) => [
                                     ...prev,
@@ -325,8 +330,8 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
                           <div className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                             <UsersIcon className="size-4 text-zinc-400" />
 
-                            {task.assignedTo ? (
-                              <span>1 assigned</span>
+                            {task.assignees?.length > 0 ? (
+                              <span>{task.assignees.length} assigned</span>
                             ) : (
                               <span className="text-zinc-400">Unassigned</span>
                             )}
@@ -380,7 +385,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
                         onChange={() =>
                           selectedTasks.includes(task._id)
                             ? setSelectedTasks((prev) =>
-                                prev.filter((i) => i !== task._id),
+                                prev.filter((i) => i !== task._id)
                               )
                             : setSelectedTasks((prev) => [...prev, task._id])
                         }
@@ -408,7 +413,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
                       <select
                         name="status"
                         onChange={(e) =>
-                          handleStatusChange(task.id, e.target.value)
+                          handleStatusChange(task._id, e.target.value)
                         }
                         value={task.status}
                         className="w-full mt-1 bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-300 dark:ring-zinc-700 outline-none px-2 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200"
@@ -424,8 +429,6 @@ const ProjectTasks = ({ tasks, onTaskUpdated }) => {
 
                       {task.assignees?.length > 0 ? (
                         <span>{task.assignees.length} assigned</span>
-                      ) : task.assignee ? (
-                        <span>1 assigned</span>
                       ) : (
                         <span className="text-zinc-400">Unassigned</span>
                       )}

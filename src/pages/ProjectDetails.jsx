@@ -8,6 +8,7 @@ import {
   CalendarIcon,
   FileStackIcon,
   ZapIcon,
+  UserPlus,
 } from "lucide-react";
 import ProjectAnalytics from "../components/ProjectAnalytics";
 import ProjectSettings from "../components/ProjectSettings";
@@ -15,12 +16,15 @@ import CreateTaskDialog from "../components/CreateTaskDialog";
 import ProjectCalendar from "../components/ProjectCalendar";
 import ProjectTasks from "../components/ProjectTasks";
 import toast from "react-hot-toast";
+import AddMembersDialog from "../components/AddMembersDialog";
+import ProjectSummary from "../components/ProjectSummary";
 
 export default function ProjectDetail() {
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab");
-
+  const selectedTaskId = searchParams.get("taskId");
+  const [showAddMembers, setShowAddMembers] = useState(false);
   const navigate = useNavigate();
 
   const [project, setProject] = useState(null);
@@ -63,7 +67,7 @@ export default function ProjectDetail() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
 
       const taskData = await taskRes.json();
@@ -127,20 +131,31 @@ export default function ProjectDetail() {
             </h1>
 
             <span
-              className={`px-2 py-0.5 text-xs rounded ${statusColors[project.status]}`}
+              className={`px-2 py-0.5 text-xs rounded ${
+                statusColors[project.status]
+              }`}
             >
               {project.status.replace("_", " ")}
             </span>
           </div>
         </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowAddMembers(true)}
+            className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition"
+          >
+            <UserPlus className="size-4" />
+            Add Members
+          </button>
 
-        <button
-          onClick={() => setShowCreateTask(true)}
-          className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition"
-        >
-          <PlusIcon className="size-4" />
-          New Task
-        </button>
+          <button
+            onClick={() => setShowCreateTask(true)}
+            className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition"
+          >
+            <PlusIcon className="size-4" />
+            New Task
+          </button>
+        </div>
       </div>
 
       {/* INFO CARDS */}
@@ -154,7 +169,7 @@ export default function ProjectDetail() {
           {
             label: "In Progress",
             value: tasks.filter(
-              (t) => t.status === "IN_PROGRESS" || t.status === "TODO",
+              (t) => t.status === "IN_PROGRESS" || t.status === "TODO"
             ).length,
           },
           {
@@ -182,27 +197,38 @@ export default function ProjectDetail() {
       {/* TABS */}
       <div>
         <div className="flex gap-2 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-1 w-fit">
-          {["tasks", "calendar", "analytics", "settings"].map((key) => (
-            <button
-              key={key}
-              onClick={() => {
-                setActiveTab(key);
-                setSearchParams({ tab: key });
-              }}
-              className={`px-4 py-2 text-sm rounded-md transition ${
-                activeTab === key
-                  ? "bg-white dark:bg-zinc-800 shadow text-zinc-900 dark:text-white"
-                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
-              }`}
-            >
-              {key}
-            </button>
-          ))}
+          {["tasks", "summary", "calendar", "analytics", "settings"].map(
+            (key) => (
+              <button
+                key={key}
+                onClick={() => {
+                  setActiveTab(key);
+                  setSearchParams({ tab: key });
+                }}
+                className={`px-4 py-2 text-sm rounded-md transition ${
+                  activeTab === key
+                    ? "bg-white dark:bg-zinc-800 shadow text-zinc-900 dark:text-white"
+                    : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                }`}
+              >
+                {key}
+              </button>
+            )
+          )}
         </div>
 
         <div className="mt-6">
           {activeTab === "tasks" && (
-            <ProjectTasks tasks={tasks} onTaskUpdated={fetchProject} />
+            <ProjectTasks
+              tasks={tasks}
+              onTaskUpdated={fetchProject}
+              key={`${student.id || student.name}-${index}`}
+              projectId={id}
+              selectedTaskIdFromUrl={selectedTaskId}
+            />
+          )}
+          {activeTab === "summary" && (
+            <ProjectSummary tasks={tasks} project={project} />
           )}
           {activeTab === "analytics" && (
             <ProjectAnalytics tasks={tasks} project={project} />
@@ -219,6 +245,15 @@ export default function ProjectDetail() {
           setShowCreateTask={setShowCreateTask}
           projectId={id}
           onTaskCreated={fetchProject}
+        />
+      )}
+      {showAddMembers && (
+        <AddMembersDialog
+          isOpen={showAddMembers}
+          setIsOpen={setShowAddMembers}
+          projectId={id}
+          onMembersAdded={fetchProject}
+          existingMembers={project.members || []}
         />
       )}
     </div>
