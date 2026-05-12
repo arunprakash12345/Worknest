@@ -61,7 +61,7 @@ export default function CreateTaskDialog({
       if (!res.ok) throw new Error(data.message);
 
       toast.success("Task created 🚀");
-
+      console.log("ASSIGNED TO:", formData.assignedTo);
       onTaskCreated && onTaskCreated();
 
       // reset

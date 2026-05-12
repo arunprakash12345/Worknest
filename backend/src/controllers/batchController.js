@@ -64,32 +64,34 @@ export const addBatchMembers = async (req, res) => {
     const { id } = req.params;
     const { memberIds } = req.body;
 
-    console.log("MEMBER IDS:", memberIds);
+    const batch = await Batch.findById(id);
 
-    const formattedMembers = memberIds.map((memberId) => ({
-      user: memberId,
-      role: "MEMBER",
-    }));
+    // EXISTING MEMBER IDS
+    const existingMemberIds = batch.members.map((m) => m.user.toString());
 
-    console.log("FORMATTED MEMBERS:", formattedMembers);
+    // FILTER NEW UNIQUE USERS
+    const uniqueNewMembers = memberIds
+      .filter((memberId) => !existingMemberIds.includes(memberId))
+      .map((memberId) => ({
+        user: memberId,
+        role: "MEMBER",
+      }));
 
-    const batch = await Batch.findByIdAndUpdate(
-      id,
-      {
-        $push: {
-          members: {
-            $each: formattedMembers,
-          },
-        },
-      },
-      {
-        returnDocument: "after",
-      }
-    ).populate("members.user", "name email image");
+    batch.members.push(...uniqueNewMembers);
 
-    res.json(batch);
+    await batch.save();
+
+    const updatedBatch = await Batch.findById(id).populate(
+      "members.user",
+      "name email image",
+    );
+
+    res.json(updatedBatch);
   } catch (err) {
     console.log("ADD MEMBERS ERROR:", err);
-    res.status(500).json({ message: err.message });
+
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };

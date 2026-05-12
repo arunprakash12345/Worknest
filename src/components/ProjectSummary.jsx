@@ -32,29 +32,38 @@ const statusConfig = {
 
 const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
   const [selectedTaskId, setSelectedTaskId] = useState(
-    selectedTaskIdFromUrl || tasks?.[0]?._id || ""
+    selectedTaskIdFromUrl || ""
   );
 
   const [selectedStudent, setSelectedStudent] = useState(null);
+
+  // SET FIRST TASK AFTER API LOAD
+  useEffect(() => {
+    if (tasks?.length > 0 && !selectedTaskId) {
+      setSelectedTaskId(tasks[0]._id);
+    }
+  }, [tasks]);
+
+  // URL TASK SYNC
   useEffect(() => {
     if (selectedTaskIdFromUrl) {
       setSelectedTaskId(selectedTaskIdFromUrl);
     }
   }, [selectedTaskIdFromUrl]);
 
-  // selected task
+  // CURRENT SELECTED TASK
   const selectedTask = useMemo(() => {
     return tasks.find((task) => task._id === selectedTaskId);
   }, [tasks, selectedTaskId]);
 
-  // students from selected task
+  // STUDENTS FROM TASK
   const students = useMemo(() => {
     if (!selectedTask) return [];
 
     // NEW MULTI ASSIGNEE FORMAT
     if (selectedTask.assignees?.length > 0) {
-      return selectedTask.assignees.map((member) => ({
-        id: member.user?._id || member.user,
+      return selectedTask.assignees.map((member, index) => ({
+        id: member.user?._id || `unknown-${index}`,
         name: member.user?.name || "Unknown User",
         status: member.status || "TODO",
       }));
@@ -64,7 +73,10 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
     if (selectedTask.assignedTo) {
       return [
         {
-          id: selectedTask.assignedTo?._id || selectedTask.assignedTo,
+          id:
+            selectedTask.assignedTo?._id ||
+            selectedTask.assignedTo ||
+            "unknown",
           name: selectedTask.assignedTo?.name || "Unknown User",
           status: selectedTask.status || "TODO",
         },
@@ -74,7 +86,7 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
     return [];
   }, [selectedTask]);
 
-  // auto select first student
+  // AUTO SELECT FIRST STUDENT
   useEffect(() => {
     if (
       students.length > 0 &&
@@ -120,10 +132,10 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
                 {tasks?.length === 0 ? (
                   <option>No tasks available</option>
                 ) : (
-                  tasks?.map((task) => (
+                  tasks?.map((task, index) => (
                     <option
-                      key={task._id || task.id || task.title}
-                      value={task._id || task.id}
+                      key={task._id || `${task.title}-${index}`}
+                      value={task._id}
                     >
                       {task.title}
                     </option>
@@ -136,7 +148,7 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
           </div>
         </div>
 
-        {/* SELECTED TASK INFO */}
+        {/* TASK INFO */}
         {selectedTask && (
           <div className="mt-5 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 bg-zinc-50 dark:bg-zinc-900/50">
             <div className="flex items-center justify-between gap-4">
@@ -152,7 +164,7 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
 
               <div className="flex items-center gap-2">
                 <span className="px-2 py-1 rounded-full text-xs bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300">
-                  {selectedTask.assignees?.length || 0} Assigned
+                  {students.length} Assigned
                 </span>
 
                 <span className="px-2 py-1 rounded-full text-xs bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
@@ -168,7 +180,7 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
       <div className="grid grid-cols-12 gap-5 h-[75vh]">
         {/* LEFT PANEL */}
         <div className="col-span-4 border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-950 overflow-hidden">
-          {/* Header */}
+          {/* HEADER */}
           <div className="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               Assigned Students
@@ -179,15 +191,13 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
             </p>
           </div>
 
-          {/* Student List */}
+          {/* STUDENTS */}
           <div className="p-3 space-y-2 overflow-y-auto h-[calc(75vh-90px)]">
             {students.length === 0 ? (
               <div className="h-full flex items-center justify-center text-center p-10">
-                <div>
-                  <p className="text-zinc-500 dark:text-zinc-400">
-                    No assignees available
-                  </p>
-                </div>
+                <p className="text-zinc-500 dark:text-zinc-400">
+                  No assignees available
+                </p>
               </div>
             ) : (
               students.map((student, index) => {
@@ -235,7 +245,7 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
 
         {/* RIGHT PANEL */}
         <div className="col-span-8 border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-950 flex flex-col">
-          {/* Header */}
+          {/* HEADER */}
           <div className="px-6 py-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
@@ -256,7 +266,7 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
             </div>
           </div>
 
-          {/* Empty Discussion */}
+          {/* EMPTY STATE */}
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="mx-auto mb-4 size-14 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
@@ -273,7 +283,7 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
             </div>
           </div>
 
-          {/* Comment Input */}
+          {/* INPUT */}
           <div className="border-t border-zinc-200 dark:border-zinc-800 p-5">
             <div className="flex items-end gap-3">
               <textarea

@@ -53,7 +53,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
     priority: "",
     assignee: "",
   });
-
+  console.log(tasks);
   const assigneeList = useMemo(() => {
     return Array.from(
       new Set(

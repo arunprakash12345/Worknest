@@ -20,26 +20,28 @@ export const createTask = async (req, res) => {
 
     let assignees = [];
 
-// ASSIGN TO ALL
-if (assignedTo === "ALL") {
-  const batchData = await Batch.findById(batch);
+    // ASSIGN TO ALL
+    if (assignedTo === "ALL") {
+      const batchData = await Batch.findById(batch);
 
-  assignees =
-    batchData.members?.map((member) => ({
-      user: member.user,
-      status: "TODO",
-    })) || [];
-}
+      console.log("BATCH MEMBERS:", batchData.members);
 
-// SINGLE ASSIGN
-else if (assignedTo && assignedTo !== "") {
-  assignees = [
-    {
-      user: assignedTo,
-      status: "TODO",
-    },
-  ];
-}
+      assignees =
+        batchData.members?.map((member) => ({
+          user: member.user?._id || member.user || member._id,
+          status: "TODO",
+        })) || [];
+    }
+
+    // SINGLE ASSIGN
+    else if (assignedTo && assignedTo !== "") {
+      assignees = [
+        {
+          user: assignedTo,
+          status: "TODO",
+        },
+      ];
+    }
 
     console.log("FINAL ASSIGNEES:", assignees);
 
@@ -69,7 +71,7 @@ export const getTasksByBatch = async (req, res) => {
 
     const tasks = await Task.find({ batch }).populate(
       "assignees.user",
-      "name email image"
+      "name email image",
     );
 
     console.log("TASKS:", JSON.stringify(tasks, null, 2));
@@ -92,7 +94,7 @@ export const updateTaskStatus = async (req, res) => {
     const task = await Task.findByIdAndUpdate(
       id,
       { status },
-      { returnDocument: "after" }
+      { returnDocument: "after" },
     );
 
     res.json(task);

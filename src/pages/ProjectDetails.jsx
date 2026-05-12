@@ -222,7 +222,7 @@ export default function ProjectDetail() {
             <ProjectTasks
               tasks={tasks}
               onTaskUpdated={fetchProject}
-              key={`${student.id || student.name}-${index}`}
+              key={`${selectedTaskId}`} // Force remount when selectedTaskId changes
               projectId={id}
               selectedTaskIdFromUrl={selectedTaskId}
             />
