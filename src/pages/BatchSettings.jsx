@@ -2,8 +2,11 @@ import { useState } from "react";
 import { User, BookOpen, LogOut, Moon, Sun } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { setTheme } from "../../src/features/themeSlice";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const BatchSettings = () => {
+  const navigate = useNavigate();
   const [userData, setUserData] = useState({
     name: "Arun",
     email: "arun@gmail.com",
@@ -13,6 +16,12 @@ const BatchSettings = () => {
   const dispatch = useDispatch();
 
   const theme = useSelector((state) => state.theme.theme);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    toast.success("Logged out successfully 👋");
+    navigate("/auth", { replace: true });
+  };
 
   // temporary data (replace with API later)
   const myBatches = [
@@ -176,7 +185,10 @@ const BatchSettings = () => {
 
       {/* LOGOUT */}
 
-      <button className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white">
+      <button
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white"
+        onClick={handleLogout}
+      >
         <LogOut size={18} />
         Logout
       </button>
