@@ -197,24 +197,22 @@ export default function ProjectDetail() {
       {/* TABS */}
       <div>
         <div className="flex gap-2 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-1 w-fit">
-          {["tasks", "summary", "calendar", "analytics", "settings"].map(
-            (key) => (
-              <button
-                key={key}
-                onClick={() => {
-                  setActiveTab(key);
-                  setSearchParams({ tab: key });
-                }}
-                className={`px-4 py-2 text-sm rounded-md transition ${
-                  activeTab === key
-                    ? "bg-white dark:bg-zinc-800 shadow text-zinc-900 dark:text-white"
-                    : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
-                }`}
-              >
-                {key}
-              </button>
-            )
-          )}
+          {["tasks", "summary", "calendar", "analytics"].map((key) => (
+            <button
+              key={key}
+              onClick={() => {
+                setActiveTab(key);
+                setSearchParams({ tab: key });
+              }}
+              className={`px-4 py-2 text-sm rounded-md transition ${
+                activeTab === key
+                  ? "bg-white dark:bg-zinc-800 shadow text-zinc-900 dark:text-white"
+                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+              }`}
+            >
+              {key}
+            </button>
+          ))}
         </div>
 
         <div className="mt-6">
@@ -234,7 +232,7 @@ export default function ProjectDetail() {
             <ProjectAnalytics tasks={tasks} project={project} />
           )}
           {activeTab === "calendar" && <ProjectCalendar tasks={tasks} />}
-          {activeTab === "settings" && <ProjectSettings project={project} />}
+          {/* {activeTab === "settings" && <ProjectSettings project={project} />} */}
         </div>
       </div>
 

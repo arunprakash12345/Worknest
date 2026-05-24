@@ -1,7 +1,13 @@
 import axios from "axios";
 
 export const getMyTasks = async () => {
-  const response = await axios.get("http://localhost:5002/tasks/my-tasks");
+  const token = localStorage.getItem("token");
+
+  const response = await axios.get("http://localhost:5002/api/tasks/my-tasks", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   return response.data;
 };

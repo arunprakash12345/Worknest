@@ -69,12 +69,11 @@ export const getTasksByBatch = async (req, res) => {
   try {
     const { batch } = req.query;
 
-    const tasks = await Task.find({ batch }).populate(
-      "assignees.user",
-      "name email image",
-    );
+    const tasks = await Task.find({ batch })
+      .populate("assignees.user", "name email image")
+      .populate("createdBy", "name");
 
-    console.log("TASKS:", JSON.stringify(tasks, null, 2));
+    console.log("TASKS DATA:", JSON.stringify(tasks, null, 2));
 
     res.json(tasks);
   } catch (err) {
@@ -146,16 +145,20 @@ export const getDashboardStats = async (req, res) => {
 
 export const getMyTasks = async (req, res) => {
   try {
-    const userId = req.user.id;
+    console.log("REQ USER:", req.user);
+
+    const userId = req.user?._id || req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "User not found",
+      });
+    }
 
     console.log("USER ID:", userId);
 
     const tasks = await Task.find({
-      assignees: {
-        $elemMatch: {
-          user: userId,
-        },
-      },
+      "assignees.user": userId,
     })
       .populate("batch", "title")
       .sort({ createdAt: -1 });
@@ -164,7 +167,7 @@ export const getMyTasks = async (req, res) => {
 
     const formattedTasks = tasks.map((task) => {
       const myAssignment = task.assignees.find(
-        (a) => a.user.toString() === userId,
+        (a) => a.user.toString() === userId.toString(),
       );
 
       return {

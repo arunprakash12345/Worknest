@@ -15,9 +15,7 @@ const Dashboard = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [loading, setLoading] = useState(true);
-
   const [projects, setProjects] = useState([]);
-
   const navigate = useNavigate();
 
   const fetchProjects = async () => {
@@ -33,9 +31,6 @@ const Dashboard = () => {
       });
 
       const data = await res.json();
-
-      console.log("RAW BATCH DATA:", data);
-
       if (!res.ok) {
         throw new Error(data.message || "Failed to fetch batches");
       }
@@ -43,25 +38,14 @@ const Dashboard = () => {
       // FORMAT PROJECTS
       const formatted = data.map((batch) => ({
         id: batch._id,
-
         name: batch.title,
-
         description: batch.description || "",
-
         status: batch.status || "ACTIVE",
-
         priority: batch.priority || "MEDIUM",
-
         startDate: batch.startDate,
-
         endDate: batch.endDate,
-
-        // IMPORTANT FIX
         members: batch.members || [],
       }));
-
-      console.log("FORMATTED PROJECTS:", formatted);
-
       setProjects(formatted);
     } catch (err) {
       console.error(err);
@@ -137,7 +121,7 @@ const Dashboard = () => {
 
         {/* RIGHT */}
         <div>
-          <TasksSummary />
+          <TasksSummary tasks={myTasks} />
         </div>
       </div>
     </div>
