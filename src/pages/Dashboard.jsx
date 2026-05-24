@@ -1,49 +1,141 @@
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import StatsGrid from "../components/StatsGrid";
 import ProjectOverview from "../components/ProjectOverview";
 import RecentActivity from "../components/RecentActivity";
 import TasksSummary from "../components/TasksSummary";
 import CreateProjectDialog from "../components/CreateProjectDialog";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { getMyTasks } from "../../service/taskApi";
 
 const Dashboard = () => {
   const user = { fullName: "User" };
+  const [myTasks, setMyTasks] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+
+  const [projects, setProjects] = useState([]);
+
+  const navigate = useNavigate();
+
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://localhost:5002/api/batches", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      console.log("RAW BATCH DATA:", data);
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to fetch batches");
+      }
+
+      // FORMAT PROJECTS
+      const formatted = data.map((batch) => ({
+        id: batch._id,
+
+        name: batch.title,
+
+        description: batch.description || "",
+
+        status: batch.status || "ACTIVE",
+
+        priority: batch.priority || "MEDIUM",
+
+        startDate: batch.startDate,
+
+        endDate: batch.endDate,
+
+        // IMPORTANT FIX
+        members: batch.members || [],
+      }));
+
+      console.log("FORMATTED PROJECTS:", formatted);
+
+      setProjects(formatted);
+    } catch (err) {
+      console.error(err);
+
+      toast.error("Failed to load batches");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  // console.log("DASHBOARD PROJECTS:", projects);
+
+  useEffect(() => {
+    const fetchMyTasks = async () => {
+      try {
+        const data = await getMyTasks();
+        setMyTasks(data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchMyTasks();
+  }, []);
+  console.log("MY TASKS:", myTasks);
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 ">
+      {/* HEADER */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-1">
-            {" "}
-            Welcome back, {user?.fullName || "User"}{" "}
+            Welcome back, {user?.fullName || "User"}
           </h1>
+
           <p className="text-gray-500 dark:text-zinc-400 text-sm">
-            {" "}
-            Here's what's happening with your projects today{" "}
+            Here's what's happening with your batches today
           </p>
         </div>
 
+        {/* CREATE BUTTON */}
         <button
           onClick={() => setIsDialogOpen(true)}
-          className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white space-x-2 hover:opacity-90 transition"
+          className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:opacity-90 transition"
         >
-          <Plus size={16} /> New Batch
+          <Plus size={16} />
+          New Batch
         </button>
 
+        {/* DIALOG */}
         <CreateProjectDialog
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
         />
       </div>
 
-      <StatsGrid />
+      {/* KPI GRID */}
+      <StatsGrid projects={projects} />
 
+      {/* MAIN CONTENT */}
       <div className="grid lg:grid-cols-3 gap-8">
+        {/* LEFT */}
         <div className="lg:col-span-2 space-y-8">
-          <ProjectOverview />
+          <ProjectOverview projects={projects} />
+
+          {/* OPTIONAL */}
           {/* <RecentActivity /> */}
         </div>
+
+        {/* RIGHT */}
         <div>
           <TasksSummary />
         </div>

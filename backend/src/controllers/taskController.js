@@ -86,6 +86,103 @@ export const getTasksByBatch = async (req, res) => {
   }
 };
 
+export const getDashboardStats = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const tasks = await Task.find({
+      "assignees.user": userId,
+    });
+
+    let totalTasks = 0;
+    let overdueTasks = 0;
+    let completedTasks = 0;
+    let inProgressTasks = 0;
+
+    tasks.forEach((task) => {
+      const myAssignment = task.assignees.find(
+        (a) => a.user.toString() === userId,
+      );
+
+      if (!myAssignment) return;
+
+      totalTasks++;
+
+      // COMPLETED
+      if (myAssignment.status === "DONE") {
+        completedTasks++;
+      }
+
+      // IN PROGRESS
+      if (myAssignment.status === "IN_PROGRESS") {
+        inProgressTasks++;
+      }
+
+      // OVERDUE
+      const isOverdue =
+        task.dueDate &&
+        new Date(task.dueDate) < new Date() &&
+        myAssignment.status !== "DONE";
+
+      if (isOverdue) {
+        overdueTasks++;
+      }
+    });
+
+    res.json({
+      totalTasks,
+      overdueTasks,
+      completedTasks,
+      inProgressTasks,
+    });
+  } catch (err) {
+    console.log("DASHBOARD STATS ERROR:", err);
+
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+export const getMyTasks = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    console.log("USER ID:", userId);
+
+    const tasks = await Task.find({
+      assignees: {
+        $elemMatch: {
+          user: userId,
+        },
+      },
+    })
+      .populate("batch", "title")
+      .sort({ createdAt: -1 });
+
+    console.log("TASKS FOUND:", tasks);
+
+    const formattedTasks = tasks.map((task) => {
+      const myAssignment = task.assignees.find(
+        (a) => a.user.toString() === userId,
+      );
+
+      return {
+        ...task._doc,
+        myStatus: myAssignment?.status,
+      };
+    });
+
+    res.json(formattedTasks);
+  } catch (err) {
+    console.log("GET MY TASKS ERROR:", err);
+
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
 export const updateTaskStatus = async (req, res) => {
   try {
     const { id } = req.params;

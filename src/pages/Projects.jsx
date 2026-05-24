@@ -17,7 +17,6 @@ export default function Projects() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // 🚀 Fetch batches from backend
   const fetchProjects = async () => {
     try {
       setLoading(true);
@@ -35,7 +34,6 @@ export default function Projects() {
         throw new Error(data.message || "Failed to fetch batches");
       }
 
-      // 🔥 Mapping backend → UI
       const formatted = data.map((batch) => ({
         id: batch._id,
         name: batch.title,
@@ -67,19 +65,19 @@ export default function Projects() {
       filtered = filtered.filter(
         (project) =>
           project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          project.description?.toLowerCase().includes(searchTerm.toLowerCase()),
+          project.description?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     if (filters.status !== "ALL") {
       filtered = filtered.filter(
-        (project) => project.status === filters.status,
+        (project) => project.status === filters.status
       );
     }
 
     if (filters.priority !== "ALL") {
       filtered = filtered.filter(
-        (project) => project.priority === filters.priority,
+        (project) => project.priority === filters.priority
       );
     }
 
@@ -89,6 +87,8 @@ export default function Projects() {
   useEffect(() => {
     filterProjects();
   }, [projects, searchTerm, filters]);
+
+  console.log("PROJECTS:", projects);
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
