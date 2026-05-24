@@ -107,7 +107,7 @@ const Dashboard = () => {
       </div>
 
       {/* KPI GRID */}
-      <StatsGrid projects={projects} />
+      <StatsGrid projects={projects} tasks={myTasks} />
 
       {/* MAIN CONTENT */}
       <div className="grid lg:grid-cols-3 gap-8">

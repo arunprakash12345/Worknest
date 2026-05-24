@@ -1,77 +1,50 @@
 import { FolderOpen, CheckCircle, Users, AlertTriangle } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 
-export default function StatsGrid({ projects }) {
-  const currentWorkspace = useSelector(
-    (state) => state?.workspace?.currentWorkspace || null
+export default function StatsGrid({ projects = [], tasks = [] }) {
+  // MY TASKS
+  const myTasks = tasks;
+
+  // OVERDUE TASKS
+  const overdueTasks = tasks.filter(
+    (t) =>
+      t.dueDate && new Date(t.dueDate) < new Date() && t.myStatus !== "DONE"
   );
 
-  const [stats, setStats] = useState({
-    totalProjects: 0,
-    activeProjects: 0,
-    completedProjects: 0,
-    myTasks: 0,
-    overdueIssues: 0,
-  });
-
-  useEffect(() => {
-    if (currentWorkspace) {
-      setStats({
-        totalProjects: currentWorkspace.projects.length,
-        activeProjects: currentWorkspace.projects.filter(
-          (p) => p.status !== "CANCELLED" && p.status !== "COMPLETED"
-        ).length,
-        completedProjects: currentWorkspace.projects
-          .filter((p) => p.status === "COMPLETED")
-          .reduce((acc, project) => acc + project.tasks.length, 0),
-        myTasks: currentWorkspace.projects.reduce(
-          (acc, project) =>
-            acc +
-            project.tasks.filter(
-              (t) => t.assignee?.email === currentWorkspace.owner.email
-            ).length,
-          0
-        ),
-        overdueIssues: currentWorkspace.projects.reduce(
-          (acc, project) =>
-            acc + project.tasks.filter((t) => t.due_date < new Date()).length,
-          0
-        ),
-      });
-    }
-  }, [currentWorkspace]);
+  // COMPLETED BATCHES
+  const completedProjects = projects.filter((p) => p.status === "COMPLETED");
 
   const statCards = [
     {
       icon: FolderOpen,
       title: "Total Batches",
       value: projects.length,
-      subtitle: `projects in ${currentWorkspace?.name}`,
+      subtitle: `${projects.length} batches`,
       bgColor: "bg-blue-500/10",
       textColor: "text-blue-500",
     },
+
     {
       icon: CheckCircle,
       title: "Completed Batches",
-      value: stats.completedProjects,
+      value: completedProjects.length,
       subtitle: `of ${projects.length} total`,
       bgColor: "bg-emerald-500/10",
       textColor: "text-emerald-500",
     },
+
     {
       icon: Users,
       title: "My Tasks",
-      value: stats.myTasks,
+      value: myTasks.length,
       subtitle: "assigned to me",
       bgColor: "bg-purple-500/10",
       textColor: "text-purple-500",
     },
+
     {
       icon: AlertTriangle,
       title: "Overdue",
-      value: stats.overdueIssues,
+      value: overdueTasks.length,
       subtitle: "need attention",
       bgColor: "bg-amber-500/10",
       textColor: "text-amber-500",
@@ -92,16 +65,17 @@ export default function StatsGrid({ projects }) {
                   <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">
                     {title}
                   </p>
+
                   <p className="text-3xl font-bold text-zinc-800 dark:text-white">
                     {value}
                   </p>
-                  {subtitle && (
-                    <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
-                      {subtitle}
-                    </p>
-                  )}
+
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
+                    {subtitle}
+                  </p>
                 </div>
-                <div className={`p-3 rounded-xl ${bgColor} bg-opacity-20`}>
+
+                <div className={`p-3 rounded-xl ${bgColor}`}>
                   <Icon size={20} className={textColor} />
                 </div>
               </div>
