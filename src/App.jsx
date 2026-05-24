@@ -8,6 +8,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 import TaskDetails from "./pages/TaskDetails";
 import Auth from "./pages/Auth";
 import { useNavigate } from "react-router-dom";
+import BatchSettings from "./pages/BatchSettings";
 
 const App = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="projects" element={<Projects />} />
           <Route path="/batches/:id" element={<ProjectDetails />} />
           <Route path="taskDetails" element={<TaskDetails />} />
+          <Route path="/settings" element={<BatchSettings />} />
         </Route>
       </Routes>
     </>
