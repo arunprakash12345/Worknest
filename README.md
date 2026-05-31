@@ -172,8 +172,7 @@ git commit -m "feat: add real-time notifications"
 
 **Arun Prakash** — Building scalable products that solve real problems.
 
-- GitHub: [your-username](https://github.com/your-username)
-- LinkedIn: [your-profile](https://linkedin.com/in/your-profile)
+- GitHub: [your-username](https://www.linkedin.com/in/arunprakashux/)
 
 ---
 
