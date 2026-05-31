@@ -1,5 +1,6 @@
 import { ArrowRight, Clock, AlertTriangle, User } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 export default function TasksSummary({ tasks = [] }) {
   // MY TASKS
@@ -13,6 +14,7 @@ export default function TasksSummary({ tasks = [] }) {
 
   // IN PROGRESS
   const inProgressIssues = tasks.filter((i) => i.myStatus === "IN_PROGRESS");
+  const [expandedCards, setExpandedCards] = useState({});
 
   const summaryCards = [
     {
@@ -21,23 +23,29 @@ export default function TasksSummary({ tasks = [] }) {
       icon: User,
       color:
         "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400",
-      items: myTasks.slice(0, 3),
+      allItems: myTasks,
     },
     {
       title: "Overdue",
       count: overdueTasks.length,
       icon: AlertTriangle,
       color: "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-400",
-      items: overdueTasks.slice(0, 3),
+      allItems: overdueTasks,
     },
     {
       title: "In Progress",
       count: inProgressIssues.length,
       icon: Clock,
       color: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-400",
-      items: inProgressIssues.slice(0, 3),
+      allItems: inProgressIssues,
     },
   ];
+
+  const getVisibleItems = (card) => {
+    return expandedCards[card.title]
+      ? card.allItems
+      : card.allItems.slice(0, 3);
+  };
 
   return (
     <div className="space-y-6">
@@ -67,13 +75,13 @@ export default function TasksSummary({ tasks = [] }) {
           </div>
 
           <div className="p-4">
-            {card.items.length === 0 ? (
+            {card.allItems.length === 0 ? (
               <p className="text-sm text-gray-500 dark:text-zinc-400 text-center py-4">
                 No {card.title.toLowerCase()}
               </p>
             ) : (
               <div className="space-y-3">
-                {card.items.map((issue) => (
+                {getVisibleItems(card).map((issue) => (
                   <Link
                     key={issue._id}
                     to={`/batches/${issue.batch?._id}?tab=summary&taskId=${issue._id}`}
@@ -91,9 +99,24 @@ export default function TasksSummary({ tasks = [] }) {
                 ))}
 
                 {card.count > 3 && (
-                  <button className="flex items-center justify-center w-full text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-white mt-2">
-                    View {card.count - 3} more
-                    <ArrowRight className="w-3 h-3 ml-2" />
+                  <button
+                    onClick={() =>
+                      setExpandedCards((prev) => ({
+                        ...prev,
+                        [card.title]: !prev[card.title],
+                      }))
+                    }
+                    className="flex items-center justify-center w-full text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-white mt-2"
+                  >
+                    {expandedCards[card.title]
+                      ? "Show Less"
+                      : `View ${card.count - 3} more`}
+
+                    <ArrowRight
+                      className={`w-3 h-3 ml-2 transition-transform ${
+                        expandedCards[card.title] ? "rotate-270" : "rotate-0"
+                      }`}
+                    />
                   </button>
                 )}
               </div>
