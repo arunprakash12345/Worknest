@@ -6,6 +6,8 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 export default function Projects() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isMentor = user?.role === "MENTOR" || user?.role === "ADMIN";
   const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -103,12 +105,14 @@ export default function Projects() {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsDialogOpen(true)}
-          className="flex items-center px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:opacity-90 transition"
-        >
-          <Plus className="size-4 mr-2" /> New Batch
-        </button>
+        {isMentor && (
+          <button
+            onClick={() => setIsDialogOpen(true)}
+            className="flex items-center px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:opacity-90 transition"
+          >
+            <Plus className="size-4 mr-2" /> New Batch
+          </button>
+        )}
 
         <CreateProjectDialog
           isDialogOpen={isDialogOpen}

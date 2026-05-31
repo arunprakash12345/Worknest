@@ -10,7 +10,8 @@ import toast from "react-hot-toast";
 import { getMyTasks } from "../../service/taskApi";
 
 const Dashboard = () => {
-  const user = { fullName: "User" };
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isMentor = user?.role === "MENTOR" || user?.role === "ADMIN";
   const [myTasks, setMyTasks] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -82,7 +83,7 @@ const Dashboard = () => {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-1">
-            Welcome back, {user?.fullName || "User"}
+            Welcome back, {user?.name || "User"}
           </h1>
 
           <p className="text-gray-500 dark:text-zinc-400 text-sm">
@@ -91,13 +92,15 @@ const Dashboard = () => {
         </div>
 
         {/* CREATE BUTTON */}
-        <button
-          onClick={() => setIsDialogOpen(true)}
-          className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:opacity-90 transition"
-        >
-          <Plus size={16} />
-          New Batch
-        </button>
+        {isMentor && (
+          <button
+            onClick={() => setIsDialogOpen(true)}
+            className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:opacity-90 transition"
+          >
+            <Plus size={16} />
+            New Batch
+          </button>
+        )}
 
         {/* DIALOG */}
         <CreateProjectDialog

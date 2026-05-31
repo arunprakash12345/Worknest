@@ -20,6 +20,8 @@ import AddMembersDialog from "../components/AddMembersDialog";
 import ProjectSummary from "../components/ProjectSummary";
 
 export default function ProjectDetail() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isMentor = user?.role === "MENTOR" || user?.role === "ADMIN";
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab");
@@ -112,6 +114,9 @@ export default function ProjectDetail() {
       </div>
     );
   }
+  const tabs = isMentor
+    ? ["tasks", "summary", "calendar", "analytics"]
+    : ["tasks", "summary", "calendar"];
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -140,21 +145,25 @@ export default function ProjectDetail() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowAddMembers(true)}
-            className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition"
-          >
-            <UserPlus className="size-4" />
-            Add Members
-          </button>
+          {isMentor && (
+            <button
+              onClick={() => setShowAddMembers(true)}
+              className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition"
+            >
+              <UserPlus className="size-4" />
+              Add Members
+            </button>
+          )}
 
-          <button
-            onClick={() => setShowCreateTask(true)}
-            className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition"
-          >
-            <PlusIcon className="size-4" />
-            New Task
-          </button>
+          {isMentor && (
+            <button
+              onClick={() => setShowCreateTask(true)}
+              className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition"
+            >
+              <PlusIcon className="size-4" />
+              New Task
+            </button>
+          )}
         </div>
       </div>
 
@@ -197,7 +206,7 @@ export default function ProjectDetail() {
       {/* TABS */}
       <div>
         <div className="flex gap-2 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-1 w-fit">
-          {["tasks", "summary", "calendar", "analytics"].map((key) => (
+          {tabs.map((key) => (
             <button
               key={key}
               onClick={() => {
@@ -210,7 +219,7 @@ export default function ProjectDetail() {
                   : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
               }`}
             >
-              {key}
+              {key.charAt(0).toUpperCase() + key.slice(1)}
             </button>
           ))}
         </div>
