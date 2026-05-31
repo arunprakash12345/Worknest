@@ -226,7 +226,12 @@ export default function ProjectDetail() {
             />
           )}
           {activeTab === "summary" && (
-            <ProjectSummary tasks={tasks} project={project} />
+            <ProjectSummary
+              key={selectedTaskId || "summary"}
+              tasks={tasks}
+              project={project}
+              selectedTaskIdFromUrl={selectedTaskId}
+            />
           )}
           {activeTab === "analytics" && (
             <ProjectAnalytics tasks={tasks} project={project} />

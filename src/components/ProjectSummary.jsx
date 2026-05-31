@@ -6,6 +6,10 @@ import {
   MessageCircle,
   ChevronDown,
 } from "lucide-react";
+import {
+  getTaskComments,
+  createTaskComment,
+} from "../../service/taskCommentApi";
 
 const statusConfig = {
   DONE: {
@@ -35,21 +39,28 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
     selectedTaskIdFromUrl || ""
   );
 
+  const [commentText, setCommentText] = useState("");
+  const [comments, setComments] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
-  // SET FIRST TASK AFTER API LOAD
   useEffect(() => {
-    if (tasks?.length > 0 && !selectedTaskId) {
-      setSelectedTaskId(tasks[0]._id);
-    }
-  }, [tasks]);
+    if (!tasks?.length) return;
 
-  // URL TASK SYNC
-  useEffect(() => {
+    // URL task always wins
     if (selectedTaskIdFromUrl) {
-      setSelectedTaskId(selectedTaskIdFromUrl);
+      const taskExists = tasks.some(
+        (task) => task._id === selectedTaskIdFromUrl
+      );
+
+      if (taskExists) {
+        setSelectedTaskId(selectedTaskIdFromUrl);
+        return;
+      }
     }
-  }, [selectedTaskIdFromUrl]);
+
+    // Fallback to first task
+    setSelectedTaskId(tasks[0]._id);
+  }, [tasks, selectedTaskIdFromUrl]);
 
   // CURRENT SELECTED TASK
   const selectedTask = useMemo(() => {
@@ -99,6 +110,37 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
       setSelectedStudent(null);
     }
   }, [students]);
+
+  const handlePostComment = async () => {
+    try {
+      if (!commentText.trim()) return;
+
+      await createTaskComment(selectedTask._id, commentText);
+
+      setCommentText("");
+
+      await loadComments();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const loadComments = async () => {
+    try {
+      if (!selectedTask) return;
+
+      const data = await getTaskComments(selectedTask._id);
+
+      setComments(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    if (selectedTask) {
+      loadComments();
+    }
+  }, [selectedTask]);
 
   return (
     <div className="space-y-5">
@@ -262,36 +304,69 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
 
             <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
               <MessageCircle className="size-5" />
-              <span className="text-sm">0 Comments</span>
+              <span className="text-sm">{comments.length} Comments</span>
             </div>
           </div>
 
           {/* EMPTY STATE */}
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <div className="mx-auto mb-4 size-14 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                <MessageCircle className="size-7 text-zinc-400" />
+          <div className="flex-1 overflow-y-auto p-5">
+            {comments.length === 0 ? (
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center">
+                  <div className="mx-auto mb-4 size-14 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                    <MessageCircle className="size-7 text-zinc-400" />
+                  </div>
+
+                  <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
+                    No comments yet
+                  </h3>
+
+                  <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                    Start the discussion with{" "}
+                    {selectedStudent?.name || "student"}
+                  </p>
+                </div>
               </div>
+            ) : (
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <div
+                    key={comment._id}
+                    className="rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 bg-zinc-50 dark:bg-zinc-900"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-medium text-sm text-zinc-900 dark:text-zinc-100">
+                        {comment.user?.name}
+                      </span>
 
-              <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-                No comments yet
-              </h3>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
+                        {comment.user?.role}
+                      </span>
+                    </div>
 
-              <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                Start the discussion with {selectedStudent?.name || "student"}
-              </p>
-            </div>
+                    <p className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
+                      {comment.message}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* INPUT */}
           <div className="border-t border-zinc-200 dark:border-zinc-800 p-5">
             <div className="flex items-end gap-3">
               <textarea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
                 placeholder="Write a comment..."
                 className="flex-1 rounded-xl border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 resize-none h-24 focus:outline-none focus:border-blue-500"
               />
 
-              <button className="px-5 py-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm hover:opacity-90 transition">
+              <button
+                onClick={handlePostComment}
+                className="px-5 py-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm hover:opacity-90 transition"
+              >
                 Post
               </button>
             </div>

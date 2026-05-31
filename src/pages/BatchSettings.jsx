@@ -1,29 +1,34 @@
 import { useState } from "react";
-import { User, BookOpen, LogOut, Moon, Sun } from "lucide-react";
+import { User, BookOpen, LogOut } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { setTheme } from "../../src/features/themeSlice";
+import { setTheme } from "../features/themeSlice";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const BatchSettings = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState({
-    name: "Arun",
-    email: "arun@gmail.com",
-    role: "Student",
-    theme: "System",
-  });
   const dispatch = useDispatch();
 
+  const loggedInUser = JSON.parse(localStorage.getItem("user"));
+
+  const [userData] = useState({
+    name: loggedInUser?.name || "",
+    email: loggedInUser?.email || "",
+    role: loggedInUser?.role || "",
+  });
+
   const theme = useSelector((state) => state.theme.theme);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
     toast.success("Logged out successfully 👋");
+
     navigate("/auth", { replace: true });
   };
 
-  // temporary data (replace with API later)
+  // TODO: Replace with API later
   const myBatches = [
     {
       id: 1,
@@ -39,24 +44,13 @@ const BatchSettings = () => {
     },
   ];
 
-  const handleChange = (field, value) => {
-    setUserData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
   const leaveBatch = (id) => {
     console.log("Leave batch:", id);
-
-    // API later
-    // await leaveBatchApi(id)
   };
 
   return (
     <div className="space-y-6">
       {/* HEADER */}
-
       <div>
         <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
           Settings
@@ -68,7 +62,6 @@ const BatchSettings = () => {
       </div>
 
       {/* PROFILE */}
-
       <div className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg">
         <div className="border-b border-zinc-200 dark:border-zinc-800 p-4">
           <div className="flex items-center gap-3">
@@ -88,8 +81,8 @@ const BatchSettings = () => {
 
             <input
               value={userData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
-              className="w-full mt-2 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
+              disabled
+              className="w-full mt-2 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 text-gray-500 dark:text-zinc-400"
             />
           </div>
 
@@ -111,20 +104,27 @@ const BatchSettings = () => {
             </label>
 
             <input
-              value={userData.role}
+              value={
+                userData.role
+                  ? userData.role.charAt(0) +
+                    userData.role.slice(1).toLowerCase()
+                  : ""
+              }
               disabled
               className="w-full mt-2 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 text-gray-500 dark:text-zinc-400"
             />
           </div>
 
-          <button className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white text-sm">
-            Save Changes
+          <button
+            disabled
+            className="px-4 py-2 rounded bg-zinc-400 text-white text-sm cursor-not-allowed"
+          >
+            Coming Soon
           </button>
         </div>
       </div>
 
       {/* MY BATCHES */}
-
       <div className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg">
         <div className="border-b border-zinc-200 dark:border-zinc-800 p-4">
           <div className="flex items-center gap-3">
@@ -148,7 +148,7 @@ const BatchSettings = () => {
 
               <button
                 onClick={() => leaveBatch(batch.id)}
-                className="px-3 py-1 rounded text-xs bg-red-100  hover:bg-red-200 text-red-600"
+                className="px-3 py-1 rounded text-xs bg-red-100 hover:bg-red-200 text-red-600"
               >
                 Leave
               </button>
@@ -158,7 +158,6 @@ const BatchSettings = () => {
       </div>
 
       {/* THEME */}
-
       <div className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg">
         <div className="border-b border-zinc-200 dark:border-zinc-800 p-4">
           <h3 className="text-sm font-medium text-gray-800 dark:text-white">
@@ -177,14 +176,12 @@ const BatchSettings = () => {
             className="w-full mt-2 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
           >
             <option value="light">Light</option>
-
             <option value="dark">Dark</option>
           </select>
         </div>
       </div>
 
       {/* LOGOUT */}
-
       <button
         className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white"
         onClick={handleLogout}

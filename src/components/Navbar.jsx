@@ -9,8 +9,10 @@ import { useState, useEffect, useRef } from "react";
 
 const Navbar = ({ setIsSidebarOpen }) => {
   const dispatch = useDispatch();
+
   const { theme } = useSelector((state) => state.theme);
   const [isOpen, setIsOpen] = useState(false);
+  const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -86,9 +88,11 @@ const Navbar = ({ setIsSidebarOpen }) => {
                 <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-lg p-2 z-50">
                   <div className="px-3 py-2 border-b border-gray-200 dark:border-zinc-700">
                     <p className="text-sm font-medium text-gray-800 dark:text-white">
-                      Arun Prakash
+                      {user?.name || "User"}
                     </p>
-                    <p className="text-xs text-gray-500">Admin</p>
+                    <p className="text-xs text-gray-500">
+                      {user?.role || "STUDENT"}
+                    </p>
                   </div>
 
                   <button

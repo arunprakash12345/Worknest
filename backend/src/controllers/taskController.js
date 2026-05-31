@@ -69,11 +69,29 @@ export const getTasksByBatch = async (req, res) => {
   try {
     const { batch } = req.query;
 
-    const tasks = await Task.find({ batch })
-      .populate("assignees.user", "name email image")
-      .populate("createdBy", "name");
+    const userId = req.user?._id || req.user?.id;
+    const role = req.user?.role;
 
-    console.log("TASKS DATA:", JSON.stringify(tasks, null, 2));
+    let tasks;
+
+    // STUDENT -> ONLY ASSIGNED TASKS
+    if (role === "STUDENT") {
+      tasks = await Task.find({
+        batch,
+        "assignees.user": userId,
+      })
+        .populate("assignees.user", "name email image")
+        .populate("createdBy", "name");
+    }
+
+    // MENTOR / ADMIN -> ALL TASKS
+    else {
+      tasks = await Task.find({ batch })
+        .populate("assignees.user", "name email image")
+        .populate("createdBy", "name");
+    }
+
+    console.log(`${role} (${userId}) fetched ${tasks.length} tasks`);
 
     res.json(tasks);
   } catch (err) {
