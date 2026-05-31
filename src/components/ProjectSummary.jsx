@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { formatDistanceToNow } from "date-fns";
 import {
   CheckCircle2,
   Clock3,
@@ -335,9 +336,15 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
                     className="rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 bg-zinc-50 dark:bg-zinc-900"
                   >
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="font-medium text-sm text-zinc-900 dark:text-zinc-100">
-                        {comment.user?.name}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{comment.user?.name}</p>
+
+                        <span className="text-xs text-zinc-500">
+                          {formatDistanceToNow(new Date(comment.createdAt), {
+                            addSuffix: true,
+                          })}
+                        </span>
+                      </div>
 
                       <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
                         {comment.user?.role}

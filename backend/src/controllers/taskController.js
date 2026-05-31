@@ -110,6 +110,7 @@ export const getDashboardStats = async (req, res) => {
     const tasks = await Task.find({
       "assignees.user": userId,
     });
+    const role = req.user.role;
 
     let totalTasks = 0;
     let overdueTasks = 0;
@@ -152,6 +153,16 @@ export const getDashboardStats = async (req, res) => {
       completedTasks,
       inProgressTasks,
     });
+    if (role === "STUDENT") {
+      const filteredTasks = tasks.filter((task) =>
+        task.assignees.some(
+          (assignee) =>
+            assignee.user && assignee.user._id.toString() === userId,
+        ),
+      );
+
+      return res.json(filteredTasks);
+    }
   } catch (err) {
     console.log("DASHBOARD STATS ERROR:", err);
 
