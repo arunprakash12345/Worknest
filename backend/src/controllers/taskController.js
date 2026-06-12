@@ -1,5 +1,6 @@
 import Task from "../models/Task.js";
 import Batch from "../models/Batch.js";
+import { sendTaskAssignedEmail } from "../../service/emailService.js";
 
 // CREATE TASK
 export const createTask = async (req, res) => {
@@ -14,6 +15,8 @@ export const createTask = async (req, res) => {
       assignedTo,
       dueDate,
     } = req.body;
+
+  
 
     console.log("REQ BODY:", req.body);
     console.log("assignedTo:", assignedTo);
@@ -55,6 +58,24 @@ export const createTask = async (req, res) => {
       assignees,
       dueDate,
     });
+      const populatedTask = await Task.findById(task._id).populate(
+  "assignees.user",
+  "name email"
+      );
+    
+    console.log("POPULATED TASK:", populatedTask);
+console.log("ASSIGNEES:", populatedTask.assignees);
+
+for (const assignee of populatedTask.assignees) {
+  if (assignee.user?.email) {
+    console.log("EMAIL CHECK:", assignee.user);
+    await sendTaskAssignedEmail({
+      to: assignee.user.email,
+      taskTitle: task.title,
+      dueDate: task.dueDate,
+    });
+  }
+}
 
     res.status(201).json(task);
   } catch (err) {
@@ -119,7 +140,7 @@ export const getDashboardStats = async (req, res) => {
 
     tasks.forEach((task) => {
       const myAssignment = task.assignees.find(
-        (a) => a.user.toString() === userId,
+        (a) => a.user.toString() === userId
       );
 
       if (!myAssignment) return;
@@ -156,9 +177,8 @@ export const getDashboardStats = async (req, res) => {
     if (role === "STUDENT") {
       const filteredTasks = tasks.filter((task) =>
         task.assignees.some(
-          (assignee) =>
-            assignee.user && assignee.user._id.toString() === userId,
-        ),
+          (assignee) => assignee.user && assignee.user._id.toString() === userId
+        )
       );
 
       return res.json(filteredTasks);
@@ -196,7 +216,7 @@ export const getMyTasks = async (req, res) => {
 
     const formattedTasks = tasks.map((task) => {
       const myAssignment = task.assignees.find(
-        (a) => a.user.toString() === userId.toString(),
+        (a) => a.user.toString() === userId.toString()
       );
 
       return {
@@ -223,7 +243,7 @@ export const updateTaskStatus = async (req, res) => {
     const task = await Task.findByIdAndUpdate(
       id,
       { status },
-      { returnDocument: "after" },
+      { returnDocument: "after" }
     );
 
     res.json(task);
