@@ -57,6 +57,7 @@ export const createTask = async (req, res) => {
       batch,
       assignees,
       dueDate,
+      createdBy: req.user._id || req.user.id,
     });
       const populatedTask = await Task.findById(task._id).populate(
   "assignees.user",
