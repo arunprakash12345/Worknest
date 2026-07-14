@@ -43,7 +43,7 @@ export default function ProjectDetail() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`http://localhost:5002/api/batches/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/batches/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -64,7 +64,7 @@ export default function ProjectDetail() {
       });
 
       const taskRes = await fetch(
-        `http://localhost:5002/api/tasks?batch=${id}`,
+        `${import.meta.env.VITE_API_URL}/tasks?batch=${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

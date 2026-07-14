@@ -98,7 +98,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
 
       const token = localStorage.getItem("token");
 
-      const res = await fetch("http://localhost:5002/api/tasks", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -136,7 +136,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `http://localhost:5002/api/tasks/${taskId}/status`,
+        `${import.meta.env.VITE_API_URL}/tasks/${taskId}/status`,
         {
           method: "PUT",
           headers: {

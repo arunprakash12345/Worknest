@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5002/api/task-comments";
+const BASE_URL = `${import.meta.env.VITE_API_URL}/task-comments`;
 
 export const getTaskComments = async (taskId) => {
   const token = localStorage.getItem("token");

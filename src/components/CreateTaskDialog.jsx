@@ -38,7 +38,7 @@ export default function CreateTaskDialog({
 
       const token = localStorage.getItem("token");
       console.log("FORM DATA:", formData);
-      const res = await fetch("http://localhost:5002/api/tasks", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -87,7 +87,7 @@ export default function CreateTaskDialog({
     const fetchUsers = async () => {
       const token = localStorage.getItem("token");
 
-      const res = await fetch("http://localhost:5002/api/users", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

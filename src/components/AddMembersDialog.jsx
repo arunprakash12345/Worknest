@@ -17,7 +17,7 @@ const AddMembersDialog = ({
       try {
         const token = localStorage.getItem("token");
 
-        const res = await fetch("http://localhost:5002/api/users", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -50,7 +50,7 @@ const AddMembersDialog = ({
       const token = localStorage.getItem("token");
       console.log("SELECTED USERS:", selectedUsers);
       const res = await fetch(
-        `http://localhost:5002/api/batches/${projectId}/members`,
+        `${import.meta.env.VITE_API_URL}/batches/${projectId}/members`,
         {
           method: "PATCH",
           headers: {

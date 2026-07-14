@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import express from "express";
 import cors from "cors";
-
 
 import authRoutes from "./routes/authRoutes.js";
 import testRoutes from "./routes/testRoutes.js";
@@ -13,22 +13,26 @@ import taskCommentRoutes from "./routes/taskCommentRoutes.js";
 
 import protect from "./middleware/authMiddleware.js";
 
-
-
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
 
-// PUBLIC ROUTES
+// Public Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/test", testRoutes);
 
-// PROTECTED ROUTES
+// Protected Routes
 app.use("/api/batches", protect, batchRoutes);
 app.use("/api/tasks", protect, taskRoutes);
 app.use("/api/users", protect, userRoutes);

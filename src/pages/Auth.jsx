@@ -11,7 +11,7 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(false);
   const navigate = useNavigate();
   const handleSignup = async () => {
-    const res = await fetch("http://localhost:5002/api/auth/register", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -38,7 +38,7 @@ const Auth = () => {
   };
   const handleLogin = async () => {
     // console.log("LOGIN CLICKED");
-    const res = await fetch("http://localhost:5002/api/auth/login", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
