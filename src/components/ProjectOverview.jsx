@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { useSelector } from "react-redux";
 import CreateProjectDialog from "./CreateProjectDialog";
 
-const ProjectOverview = ({ projects = [] }) => {
+const ProjectOverview = ({ projects = [], onBatchCreated }) => {
   const statusColors = {
     PLANNING: "bg-zinc-200 text-zinc-800 dark:bg-zinc-600 dark:text-zinc-200",
 
@@ -72,6 +72,7 @@ const ProjectOverview = ({ projects = [] }) => {
               <CreateProjectDialog
                 isDialogOpen={isDialogOpen}
                 setIsDialogOpen={setIsDialogOpen}
+                onBatchCreated={onBatchCreated}
               />
             </div>
           ) : (

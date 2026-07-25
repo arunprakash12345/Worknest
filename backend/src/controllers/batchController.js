@@ -32,10 +32,18 @@ export const createBatch = async (req, res) => {
   }
 };
 
-// GET ALL BATCHES
+// GET ALL BATCHES (user's batches only)
 export const getBatches = async (req, res) => {
   try {
-    const batches = await Batch.find().populate("createdBy", "name email");
+    const userId = req.user.id;
+
+    // Return batches where user is creator OR a member
+    const batches = await Batch.find({
+      $or: [
+        { createdBy: userId },
+        { "members.user": userId }
+      ]
+    }).populate("createdBy", "name email");
 
     res.json(batches);
   } catch (error) {

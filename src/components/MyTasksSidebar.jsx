@@ -4,10 +4,11 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { getMyTasks } from "../../service/taskApi";
 
 function MyTasksSidebar() {
+  const location = useLocation();
   const [showMyTasks, setShowMyTasks] = useState(false);
   const [myTasks, setMyTasks] = useState([]);
 
@@ -29,11 +30,14 @@ function MyTasksSidebar() {
     }
   };
 
+  // Refetch when navigating (after task creation/updates)
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const data = await getMyTasks();
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
+        const data = await getMyTasks();
         setMyTasks(data);
       } catch (err) {
         console.log(err);
@@ -41,7 +45,7 @@ function MyTasksSidebar() {
     };
 
     fetchTasks();
-  }, []);
+  }, [location.pathname]);
 
   return (
     <div className="mt-6 px-3">

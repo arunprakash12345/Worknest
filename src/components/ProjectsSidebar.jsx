@@ -16,10 +16,12 @@ const ProjectSidebar = () => {
   const [searchParams] = useSearchParams();
   const [projects, setProjects] = useState([]);
 
+  // Refetch when navigating to dashboard or projects page (after creation)
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         const token = localStorage.getItem("token");
+        if (!token) return;
 
         const res = await fetch(`${import.meta.env.VITE_API_URL}/batches`, {
           headers: {
@@ -45,7 +47,7 @@ const ProjectSidebar = () => {
     };
 
     fetchProjects();
-  }, []);
+  }, [location.pathname]);
 
   const getProjectSubItems = (projectId) => [
     {

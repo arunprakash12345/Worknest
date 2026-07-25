@@ -101,44 +101,48 @@ const CreateProjectDialog = ({
           <XIcon className="size-5" />
         </button>
 
-        <h2 className="text-xl font-medium mb-4">Create New Batch</h2>
+        <h2 className="text-xl font-medium mb-4 text-left">Create New Batch</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name */}
-          <label
-            htmlFor="name"
-            className="text-sm font-medium text-zinc-900 dark:text-zinc-200"
-          >
-            Batch Name
-          </label>
-          <input
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Batch Name"
-            className="pl-3 mt-1 w-full rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 text-sm placeholder-zinc-400 dark:placeholder-zinc-500 py-2 focus:outline-none focus:border-blue-500"
-            required
-          />
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-zinc-900 dark:text-zinc-200 text-left"
+            >
+              Batch Name
+            </label>
+            <input
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Batch Name"
+              className="pl-3 mt-1 w-full rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 text-sm placeholder-zinc-400 dark:placeholder-zinc-500 py-2 focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
 
           {/* Description */}
-          <label
-            htmlFor="description"
-            className="text-sm font-medium text-zinc-900 dark:text-zinc-200"
-          >
-            Description
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-            placeholder="Description"
-            className="pl-3 mt-1 w-full rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 text-sm placeholder-zinc-400 dark:placeholder-zinc-500 py-2 focus:outline-none focus:border-blue-500"
-          />
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-zinc-900 dark:text-zinc-200 text-left"
+            >
+              Description
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              placeholder="Description"
+              className="pl-3 mt-1 w-full rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 text-sm placeholder-zinc-400 dark:placeholder-zinc-500 py-2 focus:outline-none focus:border-blue-500"
+            />
+          </div>
 
           {/* Status & Priority */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200">
+              <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-200 text-left">
                 Status
               </label>
               <select
@@ -157,7 +161,7 @@ const CreateProjectDialog = ({
             </div>
 
             <div>
-              <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200">
+              <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-200 text-left">
                 Priority
               </label>
               <select
@@ -177,7 +181,7 @@ const CreateProjectDialog = ({
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200">
+              <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-200 text-left">
                 Start Date
               </label>
               <input
@@ -191,7 +195,7 @@ const CreateProjectDialog = ({
             </div>
 
             <div>
-              <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200">
+              <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-200 text-left">
                 End Date
               </label>
               <input

@@ -106,6 +106,7 @@ const Dashboard = () => {
         <CreateProjectDialog
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
+          onBatchCreated={fetchProjects}
         />
       </div>
 
@@ -116,7 +117,7 @@ const Dashboard = () => {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* LEFT */}
         <div className="lg:col-span-2 space-y-8">
-          <ProjectOverview projects={projects} />
+          <ProjectOverview projects={projects} onBatchCreated={fetchProjects} />
 
           {/* OPTIONAL */}
           {/* <RecentActivity /> */}
