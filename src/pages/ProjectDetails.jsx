@@ -9,6 +9,7 @@ import {
   FileStackIcon,
   ZapIcon,
   UserPlus,
+  Pencil,
 } from "lucide-react";
 import ProjectAnalytics from "../components/ProjectAnalytics";
 import ProjectSettings from "../components/ProjectSettings";
@@ -18,15 +19,18 @@ import ProjectTasks from "../components/ProjectTasks";
 import toast from "react-hot-toast";
 import AddMembersDialog from "../components/AddMembersDialog";
 import ProjectSummary from "../components/ProjectSummary";
+import CreateProjectDialog from "../components/CreateProjectDialog";
 
 export default function ProjectDetail() {
   const user = JSON.parse(localStorage.getItem("user"));
   const isMentor = user?.role === "MENTOR" || user?.role === "ADMIN";
+  const isAdmin = user?.role === "ADMIN";
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab");
   const selectedTaskId = searchParams.get("taskId");
   const [showAddMembers, setShowAddMembers] = useState(false);
+  const [showEditBatch, setShowEditBatch] = useState(false);
   const navigate = useNavigate();
 
   const [project, setProject] = useState(null);
@@ -54,13 +58,18 @@ export default function ProjectDetail() {
       if (!res.ok) throw new Error(data.message);
 
       setProject({
+        _id: data._id,
         id: data._id,
+        title: data.title,
         name: data.title,
         description: data.description,
         status: data.status,
         priority: data.priority,
         members: data.members || [],
         progress: data.progress || 0,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        createdBy: data.createdBy,
       });
 
       const taskRes = await fetch(
@@ -145,6 +154,15 @@ export default function ProjectDetail() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          {isMentor && (project?.createdBy === user?._id || project?.createdBy?._id === user?._id || isAdmin) && (
+            <button
+              onClick={() => setShowEditBatch(true)}
+              className="flex items-center gap-2 px-5 py-2 text-sm rounded border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+            >
+              <Pencil className="size-4" />
+              Edit Batch
+            </button>
+          )}
           {isMentor && (
             <button
               onClick={() => setShowAddMembers(true)}
@@ -266,6 +284,14 @@ export default function ProjectDetail() {
           projectId={id}
           onMembersAdded={fetchProject}
           existingMembers={project.members || []}
+        />
+      )}
+      {showEditBatch && (
+        <CreateProjectDialog
+          isDialogOpen={showEditBatch}
+          setIsDialogOpen={setShowEditBatch}
+          editBatch={project}
+          onBatchCreated={fetchProject}
         />
       )}
     </div>

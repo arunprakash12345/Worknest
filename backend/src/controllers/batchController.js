@@ -133,3 +133,54 @@ export const addBatchMembers = async (req, res) => {
     });
   }
 };
+
+// UPDATE BATCH
+export const updateBatch = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    const batch = await Batch.findById(id);
+
+    if (!batch) {
+      return res.status(404).json({ message: "Batch not found" });
+    }
+
+    // Only creator or admin can edit
+    const isCreator = batch.createdBy.toString() === userId;
+    const isAdmin = userRole === "ADMIN";
+
+    if (!isCreator && !isAdmin) {
+      return res.status(403).json({ message: "Not authorized to edit this batch" });
+    }
+
+    const {
+      title,
+      description,
+      status,
+      priority,
+      startDate,
+      endDate,
+    } = req.body;
+
+    // Update fields
+    if (title) batch.title = title;
+    if (description !== undefined) batch.description = description;
+    if (status) batch.status = status;
+    if (priority) batch.priority = priority;
+    if (startDate) batch.startDate = startDate;
+    if (endDate) batch.endDate = endDate;
+
+    await batch.save();
+
+    const updatedBatch = await Batch.findById(id)
+      .populate("createdBy", "name email")
+      .populate("members.user", "name email image");
+
+    res.json(updatedBatch);
+  } catch (err) {
+    console.log("UPDATE BATCH ERROR:", err);
+    res.status(500).json({ message: err.message });
+  }
+};

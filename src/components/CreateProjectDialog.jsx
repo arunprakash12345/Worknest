@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { XIcon } from "lucide-react";
-import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 
 const CreateProjectDialog = ({
   isDialogOpen,
   setIsDialogOpen,
   onBatchCreated,
+  editBatch = null, // Pass batch data to edit, null for create mode
 }) => {
-  const { currentWorkspace } = useSelector((state) => state.workspace);
+  const isEditMode = !!editBatch;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -17,13 +17,34 @@ const CreateProjectDialog = ({
     priority: "MEDIUM",
     start_date: "",
     end_date: "",
-    team_members: [],
-    team_lead: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 🚀 SUBMIT HANDLER (FIXED)
+  // Populate form when editing
+  useEffect(() => {
+    if (editBatch) {
+      setFormData({
+        name: editBatch.title || editBatch.name || "",
+        description: editBatch.description || "",
+        status: editBatch.status || "PLANNING",
+        priority: editBatch.priority || "MEDIUM",
+        start_date: editBatch.startDate ? editBatch.startDate.split("T")[0] : "",
+        end_date: editBatch.endDate ? editBatch.endDate.split("T")[0] : "",
+      });
+    } else {
+      // Reset form for create mode
+      setFormData({
+        name: "",
+        description: "",
+        status: "PLANNING",
+        priority: "MEDIUM",
+        start_date: "",
+        end_date: "",
+      });
+    }
+  }, [editBatch, isDialogOpen]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -31,9 +52,15 @@ const CreateProjectDialog = ({
       setIsSubmitting(true);
 
       const token = localStorage.getItem("token");
+      
+      const url = isEditMode
+        ? `${import.meta.env.VITE_API_URL}/batches/${editBatch._id || editBatch.id}`
+        : `${import.meta.env.VITE_API_URL}/batches`;
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/batches`, {
-        method: "POST",
+      const method = isEditMode ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -45,23 +72,20 @@ const CreateProjectDialog = ({
           priority: formData.priority,
           startDate: formData.start_date,
           endDate: formData.end_date,
-          mentor: null, // ⚠️ adjust later if you map user IDs
-          members: [],
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to create batch");
+        throw new Error(data.message || `Failed to ${isEditMode ? "update" : "create"} batch`);
       }
 
-      toast.success("Batch created successfully 🎉");
+      toast.success(isEditMode ? "Batch updated successfully ✓" : "Batch created successfully 🎉");
 
-      // 🔥 refresh list
       if (onBatchCreated) onBatchCreated();
 
-      // 🔥 reset form
+      // Reset form
       setFormData({
         name: "",
         description: "",
@@ -69,8 +93,6 @@ const CreateProjectDialog = ({
         priority: "MEDIUM",
         start_date: "",
         end_date: "",
-        team_members: [],
-        team_lead: "",
       });
 
       setIsDialogOpen(false);
@@ -80,13 +102,6 @@ const CreateProjectDialog = ({
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const removeTeamMember = (email) => {
-    setFormData((prev) => ({
-      ...prev,
-      team_members: prev.team_members.filter((m) => m !== email),
-    }));
   };
 
   if (!isDialogOpen) return null;
@@ -101,7 +116,9 @@ const CreateProjectDialog = ({
           <XIcon className="size-5" />
         </button>
 
-        <h2 className="text-xl font-medium mb-4 text-left">Create New Batch</h2>
+        <h2 className="text-xl font-medium mb-4 text-left">
+          {isEditMode ? "Edit Batch" : "Create New Batch"}
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name */}
@@ -225,7 +242,9 @@ const CreateProjectDialog = ({
               disabled={isSubmitting}
               className="px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white disabled:opacity-50 transition"
             >
-              {isSubmitting ? "Creating..." : "Create Batch"}
+              {isSubmitting
+                ? isEditMode ? "Updating..." : "Creating..."
+                : isEditMode ? "Update Batch" : "Create Batch"}
             </button>
           </div>
         </form>
