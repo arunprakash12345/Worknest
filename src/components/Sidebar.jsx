@@ -14,7 +14,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const menuItems = [
     { name: "Dashboard", href: "/", icon: LayoutDashboardIcon },
     { name: "Batches", href: "/projects", icon: FolderOpenIcon },
-    // { name: "Team", href: "/team", icon: UsersIcon },
+    { name: "Team", href: "/team", icon: UsersIcon },
     { name: "Settings", href: "/settings", icon: SettingsIcon },
   ];
 

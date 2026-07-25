@@ -43,7 +43,9 @@ export const getBatches = async (req, res) => {
         { createdBy: userId },
         { "members.user": userId }
       ]
-    }).populate("createdBy", "name email");
+    })
+      .populate("createdBy", "name email")
+      .populate("members.user", "name email image");
 
     res.json(batches);
   } catch (error) {
