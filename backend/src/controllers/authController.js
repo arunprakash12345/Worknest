@@ -7,6 +7,10 @@ export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
+    // Only MENTOR and STUDENT roles allowed via registration
+    const allowedRoles = ["MENTOR", "STUDENT"];
+    const assignedRole = allowedRoles.includes(role) ? role : "STUDENT";
+
     // check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -21,7 +25,7 @@ export const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role,
+      role: assignedRole,
     });
 
     res.status(201).json({

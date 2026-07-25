@@ -9,29 +9,34 @@ import { useNavigate } from "react-router-dom";
 
 const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { loading } = useSelector((state) => state.workspace);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Check auth on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (!token) {
-      navigate("/auth");
+      navigate("/auth", { replace: true });
+    } else {
+      setIsAuthenticated(true);
     }
-  }, []);
+  }, [navigate]);
 
   // Initial load of theme
   useEffect(() => {
     dispatch(loadTheme());
-  }, []);
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  }, [dispatch]);
 
-    if (!token) {
-      navigate("/auth", { replace: true });
-    }
-  }, [navigate]);
+  // Don't render anything until we confirm auth status
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white dark:bg-zinc-950">
+        <Loader2Icon className="size-7 text-blue-500 animate-spin" />
+      </div>
+    );
+  }
 
   if (loading)
     return (

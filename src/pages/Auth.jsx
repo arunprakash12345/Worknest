@@ -8,6 +8,7 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isMentor, setIsMentor] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const navigate = useNavigate();
   const handleSignup = async () => {
@@ -20,7 +21,7 @@ const Auth = () => {
         name,
         email,
         password,
-        role: "ADMIN",
+        role: isMentor ? "MENTOR" : "STUDENT",
       }),
     });
 
@@ -31,6 +32,7 @@ const Auth = () => {
       setName("");
       setEmail("");
       setPassword("");
+      setIsMentor(false);
       setIsLogin(true);
     } else {
       toast.error(data.message);
@@ -110,6 +112,30 @@ const Auth = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {!isLogin && (
+              <div className="flex items-center justify-between">
+                <label htmlFor="mentor-toggle" className="text-sm text-gray-700">
+                  Are you a mentor?
+                </label>
+                <button
+                  id="mentor-toggle"
+                  type="button"
+                  role="switch"
+                  aria-checked={isMentor}
+                  onClick={() => setIsMentor(!isMentor)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    isMentor ? "bg-slate-900" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      isMentor ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+            )}
+
             <button
               className="w-full mt-6 bg-slate-900 text-white py-2 rounded-md hover:bg-slate-800 transition"
               onClick={isLogin ? handleLogin : handleSignup}
