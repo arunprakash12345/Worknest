@@ -46,6 +46,20 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [selectedTasks, setSelectedTasks] = useState([]);
+  
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isStudent = user?.role === "STUDENT";
+
+  // Helper to get the display status for a task
+  const getTaskDisplayStatus = (task) => {
+    if (isStudent && task.assignees?.length > 0) {
+      const myAssignment = task.assignees.find(
+        (a) => (a.user?._id || a.user) === user?._id
+      );
+      return myAssignment?.status || task.status;
+    }
+    return task.status;
+  };
 
   const [filters, setFilters] = useState({
     status: "",
@@ -315,7 +329,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
                           className="px-4 py-2"
                         >
                           <select
-                            value={task.status}
+                            value={getTaskDisplayStatus(task)}
                             onChange={(e) =>
                               handleStatusChange(task._id, e.target.value)
                             }
@@ -415,7 +429,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
                         onChange={(e) =>
                           handleStatusChange(task._id, e.target.value)
                         }
-                        value={task.status}
+                        value={getTaskDisplayStatus(task)}
                         className="w-full mt-1 bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-300 dark:ring-zinc-700 outline-none px-2 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200"
                       >
                         <option value="TODO">To Do</option>

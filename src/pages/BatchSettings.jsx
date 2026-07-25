@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { User, BookOpen, LogOut } from "lucide-react";
+import { useState, useEffect } from "react";
+import { User, BookOpen, LogOut, Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { setTheme } from "../features/themeSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const BatchSettings = () => {
@@ -17,7 +17,36 @@ const BatchSettings = () => {
     role: loggedInUser?.role || "",
   });
 
+  const [myBatches, setMyBatches] = useState([]);
+  const [loadingBatches, setLoadingBatches] = useState(true);
+
   const theme = useSelector((state) => state.theme.theme);
+
+  // Fetch user's batches
+  useEffect(() => {
+    const fetchMyBatches = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/batches`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          setMyBatches(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch batches:", err);
+      } finally {
+        setLoadingBatches(false);
+      }
+    };
+
+    fetchMyBatches();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -26,26 +55,6 @@ const BatchSettings = () => {
     toast.success("Logged out successfully 👋");
 
     navigate("/auth", { replace: true });
-  };
-
-  // TODO: Replace with API later
-  const myBatches = [
-    {
-      id: 1,
-      title: "Frontend React Cohort",
-    },
-    {
-      id: 2,
-      title: "DSA Mastery Batch",
-    },
-    {
-      id: 3,
-      title: "UI UX Batch",
-    },
-  ];
-
-  const leaveBatch = (id) => {
-    console.log("Leave batch:", id);
   };
 
   return (
@@ -137,23 +146,42 @@ const BatchSettings = () => {
         </div>
 
         <div className="p-5 space-y-3">
-          {myBatches.map((batch) => (
-            <div
-              key={batch.id}
-              className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900"
-            >
-              <p className="text-sm text-gray-800 dark:text-white">
-                {batch.title}
-              </p>
-
-              <button
-                onClick={() => leaveBatch(batch.id)}
-                className="px-3 py-1 rounded text-xs bg-red-100 hover:bg-red-200 text-red-600"
-              >
-                Leave
-              </button>
+          {loadingBatches ? (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-zinc-400" />
             </div>
-          ))}
+          ) : myBatches.length === 0 ? (
+            <p className="text-sm text-gray-500 dark:text-zinc-400 text-center py-4">
+              You're not part of any batches yet
+            </p>
+          ) : (
+            myBatches.map((batch) => (
+              <Link
+                key={batch._id}
+                to={`/batches/${batch._id}?tab=tasks`}
+                className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+              >
+                <div>
+                  <p className="text-sm text-gray-800 dark:text-white">
+                    {batch.title}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-zinc-500 mt-0.5">
+                    {batch.members?.length || 0} members • {batch.status}
+                  </p>
+                </div>
+
+                <span className={`px-2 py-1 rounded text-xs ${
+                  batch.status === "ACTIVE" 
+                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400"
+                    : batch.status === "COMPLETED"
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
+                    : "bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300"
+                }`}>
+                  {batch.progress || 0}%
+                </span>
+              </Link>
+            ))
+          )}
         </div>
       </div>
 

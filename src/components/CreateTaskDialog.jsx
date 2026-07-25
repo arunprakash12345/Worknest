@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { useSelector } from "react-redux";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 
@@ -10,14 +9,7 @@ export default function CreateTaskDialog({
   projectId,
   onTaskCreated,
 }) {
-  const currentWorkspace = useSelector(
-    (state) => state.workspace?.currentWorkspace || null
-  );
-
-  const project = currentWorkspace?.projects?.find((p) => p.id === projectId);
-  const [users, setUsers] = useState([]);
-  const teamMembers = project?.members || [];
-
+  const [batchMembers, setBatchMembers] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -30,6 +22,43 @@ export default function CreateTaskDialog({
     due_date: "",
   });
 
+  // Fetch batch members when dialog opens
+  useEffect(() => {
+    const fetchBatchMembers = async () => {
+      if (!projectId || !showCreateTask) return;
+
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/batches/${projectId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+
+        if (res.ok && data.members) {
+          // Extract user info from members array
+          const members = data.members
+            .filter((m) => m.user) // Filter out any null users
+            .map((m) => ({
+              _id: m.user._id || m.user,
+              name: m.user.name || "Unknown",
+              email: m.user.email || "",
+            }));
+          setBatchMembers(members);
+        }
+      } catch (err) {
+        console.error("Failed to fetch batch members:", err);
+      }
+    };
+
+    fetchBatchMembers();
+  }, [projectId, showCreateTask]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -37,7 +66,6 @@ export default function CreateTaskDialog({
       setIsSubmitting(true);
 
       const token = localStorage.getItem("token");
-      console.log("FORM DATA:", formData);
       const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks`, {
         method: "POST",
         headers: {
@@ -61,7 +89,6 @@ export default function CreateTaskDialog({
       if (!res.ok) throw new Error(data.message);
 
       toast.success("Task created 🚀");
-      console.log("ASSIGNED TO:", formData.assignedTo);
       onTaskCreated && onTaskCreated();
 
       // reset
@@ -83,22 +110,6 @@ export default function CreateTaskDialog({
       setIsSubmitting(false);
     }
   };
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const token = localStorage.getItem("token");
-
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json();
-      setUsers(data);
-    };
-
-    fetchUsers();
-  }, []);
 
   if (!showCreateTask) return null;
 
@@ -193,8 +204,7 @@ export default function CreateTaskDialog({
             </div>
           </div>
 
-          {/* Assignee 🔥 */}
-
+          {/* Assignee */}
           <div>
             <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200">
               Assignee
@@ -210,15 +220,20 @@ export default function CreateTaskDialog({
               className="mt-1 w-full rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm py-2 px-2"
             >
               <option value="">Select assignee</option>
-
-              <option value="ALL">All Students</option>
-
-              {users.map((user) => (
-                <option key={user._id} value={user._id}>
-                  {user.name}
+              {batchMembers.length > 0 && (
+                <option value="ALL">All Members ({batchMembers.length})</option>
+              )}
+              {batchMembers.map((member) => (
+                <option key={member._id} value={member._id}>
+                  {member.name}
                 </option>
               ))}
             </select>
+            {batchMembers.length === 0 && (
+              <p className="text-xs text-zinc-500 mt-1">
+                Add members to this batch first to assign tasks
+              </p>
+            )}
           </div>
 
           {/* Buttons */}

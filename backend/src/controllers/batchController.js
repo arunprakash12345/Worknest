@@ -1,4 +1,5 @@
 import Batch from "../models/Batch.js";
+import Task from "../models/Task.js";
 
 // CREATE BATCH
 export const createBatch = async (req, res) => {
@@ -45,9 +46,26 @@ export const getBatches = async (req, res) => {
       ]
     })
       .populate("createdBy", "name email")
-      .populate("members.user", "name email image");
+      .populate("members.user", "name email image")
+      .lean();
 
-    res.json(batches);
+    // Calculate progress for each batch based on tasks
+    const batchesWithProgress = await Promise.all(
+      batches.map(async (batch) => {
+        const tasks = await Task.find({ batch: batch._id });
+        
+        if (tasks.length === 0) {
+          return { ...batch, progress: 0 };
+        }
+
+        const completedTasks = tasks.filter(t => t.status === "DONE").length;
+        const progress = Math.round((completedTasks / tasks.length) * 100);
+
+        return { ...batch, progress };
+      })
+    );
+
+    res.json(batchesWithProgress);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -57,13 +75,23 @@ export const getBatchById = async (req, res) => {
   try {
     const batch = await Batch.findById(req.params.id)
       .populate("createdBy", "name email")
-      .populate("members.user", "name email image");
+      .populate("members.user", "name email image")
+      .lean();
 
     if (!batch) {
       return res.status(404).json({ message: "Batch not found" });
     }
 
-    res.json(batch);
+    // Calculate progress based on tasks
+    const tasks = await Task.find({ batch: batch._id });
+    let progress = 0;
+    
+    if (tasks.length > 0) {
+      const completedTasks = tasks.filter(t => t.status === "DONE").length;
+      progress = Math.round((completedTasks / tasks.length) * 100);
+    }
+
+    res.json({ ...batch, progress });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

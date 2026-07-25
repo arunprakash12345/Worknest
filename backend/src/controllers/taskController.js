@@ -240,14 +240,42 @@ export const updateTaskStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+    const userId = req.user?._id || req.user?.id;
+    const userRole = req.user?.role;
 
-    const task = await Task.findByIdAndUpdate(
-      id,
-      { status },
-      { returnDocument: "after" }
-    );
+    const task = await Task.findById(id);
 
-    res.json(task);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    // Students update their own assignee status only
+    if (userRole === "STUDENT") {
+      const assigneeIndex = task.assignees.findIndex(
+        (a) => a.user.toString() === userId.toString()
+      );
+
+      if (assigneeIndex === -1) {
+        return res.status(403).json({ message: "You are not assigned to this task" });
+      }
+
+      task.assignees[assigneeIndex].status = status;
+      await task.save();
+
+      const updatedTask = await Task.findById(id)
+        .populate("assignees.user", "name email image");
+
+      return res.json(updatedTask);
+    }
+
+    // Mentors/Admins update the global task status
+    task.status = status;
+    await task.save();
+
+    const updatedTask = await Task.findById(id)
+      .populate("assignees.user", "name email image");
+
+    res.json(updatedTask);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
