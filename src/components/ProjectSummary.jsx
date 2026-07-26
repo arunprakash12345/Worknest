@@ -11,6 +11,7 @@ import {
   getTaskComments,
   createTaskComment,
 } from "../../service/taskCommentApi";
+import { getAvatarGradient, getInitials } from "../utils/avatar";
 
 const statusConfig = {
   DONE: {
@@ -283,8 +284,8 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="size-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-white flex items-center justify-center text-sm font-medium">
-                        {student.name?.charAt(0)?.toUpperCase() || "?"}
+                      <div className={`size-10 rounded-full bg-gradient-to-br ${getAvatarGradient(student.name || student.id)} text-white flex items-center justify-center text-sm font-medium`}>
+                        {getInitials(student.name)}
                       </div>
 
                       <div className="text-left">

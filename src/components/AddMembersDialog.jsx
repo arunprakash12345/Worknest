@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { XIcon, Trash2, UserPlus, Users, AlertTriangle } from "lucide-react";
+import { getAvatarGradient, getInitials } from "../utils/avatar";
 
 const AddMembersDialog = ({ isOpen, setIsOpen, projectId, onMembersAdded, existingMembers }) => {
   const [users, setUsers] = useState([]);
@@ -127,6 +128,9 @@ const AddMembersDialog = ({ isOpen, setIsOpen, projectId, onMembersAdded, existi
                       onChange={() => setSelectedUsers((p) => p.includes(u._id) ? p.filter((i) => i !== u._id) : [...p, u._id])} 
                       className="accent-blue-500" 
                     />
+                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${getAvatarGradient(u.name || u.email)} flex items-center justify-center text-white text-sm font-medium`}>
+                      {getInitials(u.name)}
+                    </div>
                     <div>
                       <p className="text-sm font-medium">{u.name}</p>
                       <p className="text-xs text-zinc-500">{u.email}</p>
@@ -190,8 +194,8 @@ const AddMembersDialog = ({ isOpen, setIsOpen, projectId, onMembersAdded, existi
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-sm font-medium">
-                          {mu?.name?.charAt(0) || "?"}
+                        <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${getAvatarGradient(mu?.name || mu?.email)} flex items-center justify-center text-white text-sm font-medium`}>
+                          {getInitials(mu?.name)}
                         </div>
                         <div>
                           <p className="text-sm font-medium">{mu?.name || "Unknown"}</p>

@@ -1,179 +1,113 @@
 # WorkNest
 
-> The collaboration platform where mentors and students get things done.
+A task management platform for mentor-student cohorts. Mentors create batches, assign tasks, track progress. Students see what's due and get it done.
 
-[Live Demo](#) · [Report Bug](../../issues) · [Request Feature](../../issues)
+**[Live Demo](https://worknest-psi-nine.vercel.app/auth)** • **[Report Bug](https://github.com/arunprakash12345/Worknest/issues)**
 
----
+![WorkNest Login](src/assets/loginWorknest.png)
 
-## The Problem
-
-Managing cohort-based learning is messy. Mentors juggle dozens of students, deadlines fall through the cracks, and feedback gets lost in chat threads. Students have no single place to track what's assigned, what's due, and what needs review.
-
-WorkNest fixes that.
+![WorkNest Dashboard](src/assets/homeWorkNest.png)
 
 ---
 
-## What It Does
+## Why I Built This
 
-WorkNest is a full-stack task management platform purpose-built for mentor–student cohorts. Mentors create structured batches, assign tasks with deadlines, and monitor progress at a glance. Students get a personal workspace that shows exactly what needs attention — no ambiguity, no lost assignments.
-
-| For Mentors                        | For Students                          |
-| ---------------------------------- | ------------------------------------- |
-| Create & manage cohort batches     | Personal "My Tasks" workspace         |
-| Assign tasks with deadlines        | Track progress across all assignments |
-| Review submissions & give feedback | Participate in task discussions       |
-| Monitor cohort analytics           | View calendar of upcoming deadlines   |
-| Role-scoped resource access        | Submit GitHub, PR & Figma links       |
+Managing cohorts is chaotic. Assignments get lost in Slack, deadlines slip, feedback loops are slow. I wanted one place where mentors can assign work and students can track it — no noise, just clarity.
 
 ---
 
-## Architecture
+## Features
 
-```
-worknest/
-├── client/                   # React frontend
-│   ├── src/
-│   │   ├── components/       # Reusable UI components
-│   │   ├── features/         # Redux slices (auth, tasks, batches)
-│   │   ├── pages/            # Route-level views
-│   │   └── hooks/            # Custom React hooks
-├── server/                   # Express backend
-│   ├── controllers/          # Route handlers
-│   ├── middleware/            # Auth, RBAC, error handling
-│   ├── models/               # Mongoose schemas
-│   └── routes/               # API route definitions
-└── README.md
-```
+- **Role-based access** — Mentors and students see different dashboards
+- **Batch management** — Create cohorts, add/remove members, track progress
+- **Task workflow** — Create → Assign → Track → Complete with per-assignee status
+- **Discussion threads** — Comments on each task for feedback
+- **Calendar view** — Never miss a deadline
+- **Analytics** — Charts showing completion rates, task distribution
+- **Global search** — Find any batch or task instantly
+- **Dark mode** — Because we code at night
 
 ---
 
 ## Tech Stack
 
-**Frontend** — React 18, Redux Toolkit, React Router v6, Tailwind CSS, Recharts
-
-**Backend** — Node.js, Express.js, JWT Authentication, Role-Based Access Control
-
-**Database** — MongoDB Atlas, Mongoose ODM
-
----
-
-## Key Features
-
-**JWT Auth + RBAC** — Stateless authentication with role-scoped resource access. Mentors and students see only what they're authorized to see.
-
-**Batch Management** — Mentors can spin up cohorts, add members, and manage the entire lifecycle of a batch from a single dashboard.
-
-**Task Lifecycle** — Full task workflow: create → assign → submit → review → close. Supports GitHub PR links, Figma URLs, and inline feedback.
-
-**Analytics Dashboard** — Recharts-powered visualizations for tracking cohort progress, submission rates, and individual performance.
-
-**Task Calendar** — Interactive calendar view so students never miss a deadline.
-
-**Dark / Light Theme** — System-aware theme with manual override. Persisted across sessions.
+| Frontend | Backend | Database |
+|----------|---------|----------|
+| React 19 | Express 5 | MongoDB |
+| Redux Toolkit | JWT Auth | Mongoose |
+| React Router v7 | RBAC Middleware | |
+| Tailwind CSS | Node.js | |
+| Recharts | | |
 
 ---
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js v18+
-- MongoDB Atlas URI (or local MongoDB)
-
-### Installation
+## Run Locally
 
 ```bash
-# Clone the repo
-git clone https://github.com/your-username/worknest.git
-cd worknest
+# Clone
+git clone https://github.com/arunprakash12345/Worknest.git
+cd Worknest
 
-# Install server dependencies
-cd server && npm install
+# Install dependencies
+npm install
+cd backend && npm install
 
-# Install client dependencies
-cd ../client && npm install
+# Set up environment variables
+# Root .env: VITE_API_URL=http://localhost:5000/api
+# backend/.env: MONGO_URI, JWT_SECRET, PORT=5000
+
+# Run
+cd backend && npm start   # API on :5000
+cd .. && npm run dev      # Frontend on :5173
 ```
-
-### Environment Setup
-
-Create a `.env` file in `/server`:
-
-```env
-PORT=5000
-MONGO_URI=your_mongodb_atlas_uri
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=7d
-```
-
-### Run Locally
-
-```bash
-# Start the backend (from /server)
-npm run dev
-
-# Start the frontend (from /client)
-npm start
-```
-
-App runs at `http://localhost:3000` · API at `http://localhost:5000`
 
 ---
 
-## API Overview
+## Project Structure
 
-| Method  | Endpoint                  | Access  | Description          |
-| ------- | ------------------------- | ------- | -------------------- |
-| `POST`  | `/api/auth/register`      | Public  | Register a new user  |
-| `POST`  | `/api/auth/login`         | Public  | Login & receive JWT  |
-| `GET`   | `/api/batches`            | Mentor  | List all batches     |
-| `POST`  | `/api/batches`            | Mentor  | Create a new batch   |
-| `GET`   | `/api/tasks/my`           | Student | Get assigned tasks   |
-| `POST`  | `/api/tasks`              | Mentor  | Create & assign task |
-| `PATCH` | `/api/tasks/:id/submit`   | Student | Submit task          |
-| `GET`   | `/api/analytics/:batchId` | Mentor  | Batch analytics      |
-
----
-
-## Roadmap
-
-- [x] JWT auth with RBAC
-- [x] Batch & member management
-- [x] Task creation, assignment & tracking
-- [x] Task discussions with external links
-- [x] Analytics dashboard
-- [x] Dark/light theme
-- [ ] Real-time notifications (WebSockets)
-- [ ] File attachments on submissions
-- [ ] Activity timeline per task
-- [ ] GitHub integration (auto-fetch PR status)
-- [ ] AI-powered progress insights
-- [ ] Microsoft Teams / Slack notifications
-
----
-
-## Contributing
-
-Contributions are welcome. Please open an issue first to discuss what you'd like to change.
-
-```bash
-# Create a feature branch
-git checkout -b feature/your-feature-name
-
-# Commit with conventional commits
-git commit -m "feat: add real-time notifications"
-
-# Open a pull request
 ```
+├── src/
+│   ├── components/    # UI components
+│   ├── pages/         # Route pages
+│   ├── features/      # Redux slices
+│   └── utils/         # API helpers
+├── backend/
+│   ├── controllers/   # Route handlers
+│   ├── models/        # Mongoose schemas
+│   ├── routes/        # API endpoints
+│   └── middleware/    # Auth, validation
+```
+
+---
+
+## API Endpoints
+
+```
+POST   /api/auth/register     # Sign up
+POST   /api/auth/login        # Sign in
+GET    /api/batches           # List batches
+POST   /api/batches           # Create batch
+GET    /api/tasks?batch=:id   # Get batch tasks
+POST   /api/tasks             # Create task
+PUT    /api/tasks/:id/status  # Update status
+GET    /api/tasks/my-tasks    # User's assigned tasks
+```
+
+---
+
+## What's Next
+
+- [ ] Real-time notifications
+- [ ] File attachments
+- [ ] GitHub PR integration
+- [ ] Email notifications on assignment
 
 ---
 
 ## Author
 
-**Arun Prakash** — Building scalable products that solve real problems.
-
-- LinkedIn: [your-username](https://www.linkedin.com/in/arunprakashux/)
+**Arun Prakash** — [LinkedIn](https://www.linkedin.com/in/arunprakashux/)
 
 ---
 
-_Built with focus. Designed for learning teams._
+*Built to solve a real problem I faced while mentoring.*

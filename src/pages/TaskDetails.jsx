@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { CalendarIcon, MessageCircle, PenIcon } from "lucide-react";
-import { assets } from "../assets/assets";
+import { getAvatarGradient, getInitials } from "../utils/avatar";
 
 const TaskDetails = () => {
   const [searchParams] = useSearchParams();
@@ -48,7 +48,7 @@ const TaskDetails = () => {
 
       const dummyComment = {
         id: Date.now(),
-        user: { id: 1, name: "User", image: assets.profile_img_a },
+        user: { id: 1, name: "User" },
         content: newComment,
         createdAt: new Date(),
       };
@@ -106,11 +106,9 @@ const TaskDetails = () => {
                     className={`sm:max-w-4/5 dark:bg-gradient-to-br dark:from-zinc-800 dark:to-zinc-900 border border-gray-300 dark:border-zinc-700 p-3 rounded-md ${comment.user.id === user?.id ? "ml-auto" : "mr-auto"}`}
                   >
                     <div className="flex items-center gap-2 mb-1 text-sm text-gray-500 dark:text-zinc-400">
-                      <img
-                        src={comment.user.image}
-                        alt="avatar"
-                        className="size-5 rounded-full"
-                      />
+                      <div className={`size-5 rounded-full bg-gradient-to-br ${getAvatarGradient(comment.user.name)} flex items-center justify-center text-white text-[10px] font-medium`}>
+                        {getInitials(comment.user.name)}
+                      </div>
                       <span className="font-medium text-gray-900 dark:text-white">
                         {comment.user.name}
                       </span>
@@ -185,11 +183,9 @@ const TaskDetails = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 dark:text-zinc-300">
             <div className="flex items-center gap-2">
-              <img
-                src={task.assignee?.image}
-                className="size-5 rounded-full"
-                alt="avatar"
-              />
+              <div className={`size-5 rounded-full bg-gradient-to-br ${getAvatarGradient(task.assignee?.name)} flex items-center justify-center text-white text-[10px] font-medium`}>
+                {getInitials(task.assignee?.name)}
+              </div>
               {task.assignee?.name || "Unassigned"}
             </div>
             <div className="flex items-center gap-2">

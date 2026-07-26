@@ -2,10 +2,10 @@ import { SearchIcon, PanelLeft, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../features/themeSlice";
 import { MoonIcon, SunIcon } from "lucide-react";
-import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useState, useEffect, useRef } from "react";
+import { getAvatarGradient, getInitials } from "../utils/avatar";
 
 const Navbar = ({ setIsSidebarOpen }) => {
   const dispatch = useDispatch();
@@ -200,12 +200,12 @@ const Navbar = ({ setIsSidebarOpen }) => {
           </button>
 
           <div ref={dropdownRef} className="relative">
-            <img
-              src={assets.profile_img_a}
-              alt="User Avatar"
-              className="size-7 rounded-full cursor-pointer"
+            <div
               onClick={() => setIsOpen((prev) => !prev)}
-            />
+              className={`size-7 rounded-full bg-gradient-to-br ${getAvatarGradient(user?.name || user?.email)} flex items-center justify-center text-white text-xs font-medium cursor-pointer`}
+            >
+              {getInitials(user?.name)}
+            </div>
             {isOpen && (
               <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-lg p-2 z-50">
                 <div className="px-3 py-2 border-b border-gray-200 dark:border-zinc-700">

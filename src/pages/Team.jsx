@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { UsersIcon, Search, UserPlus, Shield, Activity } from "lucide-react";
 import toast from "react-hot-toast";
+import { getAvatarGradient, getInitials } from "../utils/avatar";
 
 const Team = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -187,8 +188,8 @@ const Team = () => {
                                             className="hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
                                         >
                                             <td className="px-6 py-2.5 whitespace-nowrap flex items-center gap-3">
-                                                <div className="size-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xs font-medium">
-                                                    {member.user.name?.charAt(0)?.toUpperCase() || "?"}
+                                                <div className={`size-7 rounded-full bg-gradient-to-br ${getAvatarGradient(member.user.name || member.user.email)} flex items-center justify-center text-white text-xs font-medium`}>
+                                                    {getInitials(member.user.name)}
                                                 </div>
                                                 <span className="text-sm text-zinc-800 dark:text-white truncate">
                                                     {member.user?.name || "Unknown User"}
@@ -221,8 +222,8 @@ const Team = () => {
                                     className="p-4 border border-gray-200 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900"
                                 >
                                     <div className="flex items-center gap-3 mb-2">
-                                        <div className="size-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-sm font-medium">
-                                            {member.user.name?.charAt(0)?.toUpperCase() || "?"}
+                                        <div className={`size-9 rounded-full bg-gradient-to-br ${getAvatarGradient(member.user.name || member.user.email)} flex items-center justify-center text-white text-sm font-medium`}>
+                                            {getInitials(member.user.name)}
                                         </div>
                                         <div>
                                             <p className="font-medium text-gray-900 dark:text-white">
