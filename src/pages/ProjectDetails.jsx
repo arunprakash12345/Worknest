@@ -3,16 +3,13 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   ArrowLeftIcon,
   PlusIcon,
-  SettingsIcon,
-  BarChart3Icon,
-  CalendarIcon,
-  FileStackIcon,
   ZapIcon,
   UserPlus,
   Pencil,
+  Trash2,
+  MoreVertical,
 } from "lucide-react";
 import ProjectAnalytics from "../components/ProjectAnalytics";
-import ProjectSettings from "../components/ProjectSettings";
 import CreateTaskDialog from "../components/CreateTaskDialog";
 import ProjectCalendar from "../components/ProjectCalendar";
 import ProjectTasks from "../components/ProjectTasks";
@@ -31,6 +28,8 @@ export default function ProjectDetail() {
   const selectedTaskId = searchParams.get("taskId");
   const [showAddMembers, setShowAddMembers] = useState(false);
   const [showEditBatch, setShowEditBatch] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const navigate = useNavigate();
 
   const [project, setProject] = useState(null);
@@ -96,6 +95,34 @@ export default function ProjectDetail() {
     fetchProject();
   }, [id]);
 
+  const handleDeleteBatch = async () => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this batch? This will also delete all tasks in this batch. This action cannot be undone."
+    );
+    if (!confirmDelete) return;
+
+    try {
+      setIsDeleting(true);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/batches/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      toast.success("Batch deleted successfully");
+      navigate("/projects");
+    } catch (err) {
+      toast.error(err.message || "Failed to delete batch");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const statusColors = {
     PLANNING: "bg-zinc-200 text-zinc-900 dark:bg-zinc-600 dark:text-zinc-200",
     ACTIVE:
@@ -154,22 +181,13 @@ export default function ProjectDetail() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {isMentor && (project?.createdBy === user?._id || project?.createdBy?._id === user?._id || isAdmin) && (
-            <button
-              onClick={() => setShowEditBatch(true)}
-              className="flex items-center gap-2 px-5 py-2 text-sm rounded border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
-            >
-              <Pencil className="size-4" />
-              Edit Batch
-            </button>
-          )}
           {isMentor && (
             <button
               onClick={() => setShowAddMembers(true)}
               className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition"
             >
               <UserPlus className="size-4" />
-              Add Members
+              Members
             </button>
           )}
 
@@ -181,6 +199,50 @@ export default function ProjectDetail() {
               <PlusIcon className="size-4" />
               New Task
             </button>
+          )}
+
+          {/* More Options Menu */}
+          {isMentor && (project?.createdBy === user?._id || project?.createdBy?._id === user?._id || isAdmin) && (
+            <div className="relative">
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                className="p-2 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 transition"
+              >
+                <MoreVertical className="size-5 text-zinc-600 dark:text-zinc-400" />
+              </button>
+
+              {showMenu && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowMenu(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-lg z-50 py-1">
+                    <button
+                      onClick={() => {
+                        setShowEditBatch(true);
+                        setShowMenu(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                    >
+                      <Pencil className="size-4" />
+                      Edit Batch
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowMenu(false);
+                        handleDeleteBatch();
+                      }}
+                      disabled={isDeleting}
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition disabled:opacity-50"
+                    >
+                      <Trash2 className="size-4" />
+                      {isDeleting ? "Deleting..." : "Delete Batch"}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           )}
         </div>
       </div>

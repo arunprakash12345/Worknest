@@ -35,7 +35,6 @@ export const createComment = async (req, res) => {
 
     if (isMentor) {
       for (const assignee of task.assignees) {
-        console.log("STUDENT EMAIL:", assignee.user?.email);
       }
 
       for (const assignee of task.assignees) {
@@ -60,8 +59,6 @@ export const createComment = async (req, res) => {
           senderName: currentUser.name,
           message,
         });
-        console.log("STUDENT COMMENT DETECTED");
-        console.log("MENTOR EMAIL:", task.createdBy?.email);
       }
     }
 
@@ -73,8 +70,6 @@ export const createComment = async (req, res) => {
 
     res.status(201).json(populatedComment);
   } catch (err) {
-    console.log("CREATE COMMENT ERROR:", err);
-
     res.status(500).json({
       message: err.message,
     });
@@ -94,8 +89,6 @@ export const getTaskComments = async (req, res) => {
 
     res.json(comments);
   } catch (err) {
-    console.log("GET COMMENTS ERROR:", err);
-
     res.status(500).json({
       message: err.message,
     });

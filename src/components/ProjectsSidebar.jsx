@@ -42,7 +42,7 @@ const ProjectSidebar = () => {
 
         setProjects(formattedProjects);
       } catch (err) {
-        console.log("PROJECT FETCH ERROR:", err);
+        // Error handled silently
       }
     };
 

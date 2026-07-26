@@ -1,79 +1,69 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { XIcon } from "lucide-react";
+import { XIcon, Trash2, UserPlus, Users } from "lucide-react";
 
-const AddMembersDialog = ({
-  isOpen,
-  setIsOpen,
-  projectId,
-  onMembersAdded,
-  existingMembers,
-}) => {
+const AddMembersDialog = ({ isOpen, setIsOpen, projectId, onMembersAdded, existingMembers }) => {
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [activeTab, setActiveTab] = useState("add");
+  const [removingMember, setRemovingMember] = useState(null);
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  const isMentor = currentUser?.role === "MENTOR" || currentUser?.role === "ADMIN";
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem("token");
-
         const res = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
         const data = await res.json();
-
-        // already added member ids
-        const existingMemberIds = existingMembers.map(
-          (member) => member.user?._id || member.user
-        );
-
-        // remove already added users
-        const filteredUsers = data.filter(
-          (user) => !existingMemberIds.includes(user._id)
-        );
-
-        setUsers(filteredUsers);
+        const existingMemberIds = existingMembers.map((m) => m.user?._id || m.user);
+        setUsers(data.filter((u) => !existingMemberIds.includes(u._id)));
       } catch (err) {
-        console.error(err);
         toast.error("Failed to load users");
       }
     };
-
-    fetchUsers();
-  }, [existingMembers]);
+    if (isOpen) {
+      fetchUsers();
+      setSelectedUsers([]);
+    }
+  }, [existingMembers, isOpen]);
 
   const handleAddMembers = async () => {
     try {
       const token = localStorage.getItem("token");
-      console.log("SELECTED USERS:", selectedUsers);
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/batches/${projectId}/members`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            memberIds: selectedUsers,
-          }),
-        }
-      );
-
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/batches/${projectId}/members`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ memberIds: selectedUsers }),
+      });
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.message);
-
-      toast.success("Members added successfully");
-
+      toast.success("Members added");
       onMembersAdded();
-
       setIsOpen(false);
     } catch (err) {
       toast.error(err.message);
+    }
+  };
+
+  const handleRemoveMember = async (memberId) => {
+    try {
+      setRemovingMember(memberId);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/batches/${projectId}/members/${memberId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      toast.success("Member removed");
+      onMembersAdded();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setRemovingMember(null);
     }
   };
 
@@ -82,77 +72,82 @@ const AddMembersDialog = ({
   return (
     <div className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur flex items-center justify-center z-50">
       <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 w-full max-w-lg relative">
-        <button
-          className="absolute top-3 right-3"
-          onClick={() => setIsOpen(false)}
-        >
+        <button className="absolute top-3 right-3" onClick={() => setIsOpen(false)}>
           <XIcon className="size-5" />
         </button>
+        <h2 className="text-xl font-medium mb-4">Manage Members</h2>
+        <div className="flex gap-2 mb-4 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-1">
+          <button onClick={() => setActiveTab("add")} className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm rounded-md transition ${activeTab === "add" ? "bg-white dark:bg-zinc-800 shadow text-zinc-900 dark:text-white" : "text-zinc-500"}`}>
+            <UserPlus className="size-4" /> Add
+          </button>
+          <button onClick={() => setActiveTab("current")} className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm rounded-md transition ${activeTab === "current" ? "bg-white dark:bg-zinc-800 shadow text-zinc-900 dark:text-white" : "text-zinc-500"}`}>
+            <Users className="size-4" /> Current ({existingMembers.length})
+          </button>
+        </div>
 
-        <h2 className="text-2xl font-semibold mb-6">Add Members</h2>
-
-        <div className="space-y-3 max-h-80 overflow-y-auto">
-          {users.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-14 h-14 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
-                <span className="text-2xl">🎉</span>
-              </div>
-
-              <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-200">
-                All members already added
-              </h3>
-
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                No more users available to add
-              </p>
-            </div>
-          ) : (
-            users.map((user) => (
-              <label
-                key={user._id}
-                className="flex items-center gap-3 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedUsers.includes(user._id)}
-                  onChange={() =>
-                    setSelectedUsers((prev) =>
-                      prev.includes(user._id)
-                        ? prev.filter((id) => id !== user._id)
-                        : [...prev, user._id]
-                    )
-                  }
-                />
-
-                <div>
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-200">
-                    {user.name}
-                  </p>
-
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {user.email}
-                  </p>
+        {activeTab === "add" && (
+          <div>
+            <div className="space-y-3 max-h-80 overflow-y-auto">
+              {users.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <span className="text-2xl mb-2">🎉</span>
+                  <h3 className="text-sm font-medium">All members already added</h3>
                 </div>
-              </label>
-            ))
-          )}
-        </div>
+              ) : (
+                users.map((u) => (
+                  <label key={u._id} className="flex items-center gap-3 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900">
+                    <input type="checkbox" checked={selectedUsers.includes(u._id)} onChange={() => setSelectedUsers((p) => p.includes(u._id) ? p.filter((i) => i !== u._id) : [...p, u._id])} className="accent-blue-500" />
+                    <div>
+                      <p className="text-sm font-medium">{u.name}</p>
+                      <p className="text-xs text-zinc-500">{u.email}</p>
+                    </div>
+                  </label>
+                ))
+              )}
+            </div>
+            <div className="flex justify-end gap-3 pt-6">
+              <button onClick={() => setIsOpen(false)} className="px-5 py-2 text-sm rounded border border-zinc-300 dark:border-zinc-700">Cancel</button>
+              <button onClick={handleAddMembers} disabled={!selectedUsers.length} className="px-5 py-2 text-sm rounded bg-blue-500 text-white disabled:opacity-50">Add ({selectedUsers.length})</button>
+            </div>
+          </div>
+        )}
 
-        <div className="flex justify-end gap-3 pt-6">
-          <button
-            onClick={() => setIsOpen(false)}
-            className="px-5 py-2 text-sm rounded border border-zinc-300 dark:border-zinc-700"
-          >
-            Cancel
-          </button>
-
-          <button
-            onClick={handleAddMembers}
-            className="px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white"
-          >
-            Add Members
-          </button>
-        </div>
+        {activeTab === "current" && (
+          <div>
+            <div className="space-y-3 max-h-80 overflow-y-auto">
+              {existingMembers.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Users className="size-8 text-zinc-400 mb-2" />
+                  <h3 className="text-sm font-medium">No members yet</h3>
+                </div>
+              ) : (
+                existingMembers.map((member) => {
+                  const mu = member.user;
+                  const mId = mu?._id || member.user;
+                  return (
+                    <div key={mId} className="flex items-center justify-between border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-sm font-medium">{mu?.name?.charAt(0) || "?"}</div>
+                        <div>
+                          <p className="text-sm font-medium">{mu?.name || "Unknown"}</p>
+                          <p className="text-xs text-zinc-500">{mu?.email || ""}</p>
+                        </div>
+                      </div>
+                      {isMentor && (
+                        <button onClick={() => handleRemoveMember(mId)} disabled={removingMember === mId} className="p-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 disabled:opacity-50">
+                          <Trash2 className="size-4" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            <div className="flex justify-end pt-6">
+              <button onClick={() => setIsOpen(false)} className="px-5 py-2 text-sm rounded border border-zinc-300 dark:border-zinc-700">Close</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

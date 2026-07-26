@@ -40,7 +40,7 @@ function MyTasksSidebar() {
         const data = await getMyTasks();
         setMyTasks(data);
       } catch (err) {
-        console.log(err);
+        // Error handled silently
       }
     };
 

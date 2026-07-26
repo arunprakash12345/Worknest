@@ -3,6 +3,7 @@ import {
   getTasksByBatch,
   createTask,
   updateTaskStatus,
+  updateTask,
   deleteTasks,
   getDashboardStats,
   getMyTasks,
@@ -22,6 +23,7 @@ router.get("/my-tasks", protect, getMyTasks);
 router.get("/", protect, getTasksByBatch);
 router.post("/", protect, createTaskValidation, validate, createTask);
 router.put("/:id/status", protect, updateTaskStatusValidation, validate, updateTaskStatus);
+router.put("/:id", protect, createTaskValidation, validate, updateTask);
 router.delete("/", protect, deleteTasksValidation, validate, deleteTasks);
 
 export default router;

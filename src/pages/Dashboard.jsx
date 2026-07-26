@@ -69,13 +69,12 @@ const Dashboard = () => {
         const data = await getMyTasks();
         setMyTasks(data);
       } catch (err) {
-        console.log(err);
+        // Error handled silently
       }
     };
 
     fetchMyTasks();
   }, []);
-  console.log("MY TASKS:", myTasks);
 
   return (
     <div className="max-w-6xl mx-auto">

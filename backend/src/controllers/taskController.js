@@ -16,18 +16,11 @@ export const createTask = async (req, res) => {
       dueDate,
     } = req.body;
 
-  
-
-    console.log("REQ BODY:", req.body);
-    console.log("assignedTo:", assignedTo);
-
     let assignees = [];
 
     // ASSIGN TO ALL
     if (assignedTo === "ALL") {
       const batchData = await Batch.findById(batch);
-
-      console.log("BATCH MEMBERS:", batchData.members);
 
       assignees =
         batchData.members?.map((member) => ({
@@ -46,8 +39,6 @@ export const createTask = async (req, res) => {
       ];
     }
 
-    console.log("FINAL ASSIGNEES:", assignees);
-
     const task = await Task.create({
       title,
       description,
@@ -60,27 +51,22 @@ export const createTask = async (req, res) => {
       createdBy: req.user._id || req.user.id,
     });
       const populatedTask = await Task.findById(task._id).populate(
-  "assignees.user",
-  "name email"
-      );
-    
-    console.log("POPULATED TASK:", populatedTask);
-console.log("ASSIGNEES:", populatedTask.assignees);
+      "assignees.user",
+      "name email"
+    );
 
-for (const assignee of populatedTask.assignees) {
-  if (assignee.user?.email) {
-    console.log("EMAIL CHECK:", assignee.user);
-    await sendTaskAssignedEmail({
-      to: assignee.user.email,
-      taskTitle: task.title,
-      dueDate: task.dueDate,
-    });
-  }
-}
+    for (const assignee of populatedTask.assignees) {
+      if (assignee.user?.email) {
+        await sendTaskAssignedEmail({
+          to: assignee.user.email,
+          taskTitle: task.title,
+          dueDate: task.dueDate,
+        });
+      }
+    }
 
     res.status(201).json(task);
   } catch (err) {
-    console.log(err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -113,12 +99,8 @@ export const getTasksByBatch = async (req, res) => {
         .populate("createdBy", "name");
     }
 
-    console.log(`${role} (${userId}) fetched ${tasks.length} tasks`);
-
     res.json(tasks);
   } catch (err) {
-    console.log("GET TASKS ERROR:", err);
-
     res.status(500).json({
       message: err.message,
     });
@@ -185,8 +167,6 @@ export const getDashboardStats = async (req, res) => {
       return res.json(filteredTasks);
     }
   } catch (err) {
-    console.log("DASHBOARD STATS ERROR:", err);
-
     res.status(500).json({
       message: err.message,
     });
@@ -195,8 +175,6 @@ export const getDashboardStats = async (req, res) => {
 
 export const getMyTasks = async (req, res) => {
   try {
-    console.log("REQ USER:", req.user);
-
     const userId = req.user?._id || req.user?.id;
 
     if (!userId) {
@@ -205,15 +183,11 @@ export const getMyTasks = async (req, res) => {
       });
     }
 
-    console.log("USER ID:", userId);
-
     const tasks = await Task.find({
       "assignees.user": userId,
     })
       .populate("batch", "title")
       .sort({ createdAt: -1 });
-
-    console.log("TASKS FOUND:", tasks);
 
     const formattedTasks = tasks.map((task) => {
       const myAssignment = task.assignees.find(
@@ -228,8 +202,6 @@ export const getMyTasks = async (req, res) => {
 
     res.json(formattedTasks);
   } catch (err) {
-    console.log("GET MY TASKS ERROR:", err);
-
     res.status(500).json({
       message: err.message,
     });
@@ -290,6 +262,73 @@ export const deleteTasks = async (req, res) => {
     });
 
     res.json({ message: "Tasks deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// UPDATE TASK
+export const updateTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?._id || req.user?.id;
+    const userRole = req.user?.role;
+
+    const task = await Task.findById(id);
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    // Only creator, mentor, or admin can edit task
+    const isCreator = task.createdBy?.toString() === userId?.toString();
+    const canEdit = isCreator || userRole === "MENTOR" || userRole === "ADMIN";
+
+    if (!canEdit) {
+      return res.status(403).json({ message: "Not authorized to edit this task" });
+    }
+
+    const {
+      title,
+      description,
+      status,
+      type,
+      priority,
+      dueDate,
+      assignedTo,
+    } = req.body;
+
+    // Update basic fields
+    if (title) task.title = title;
+    if (description !== undefined) task.description = description;
+    if (status) task.status = status;
+    if (type) task.type = type;
+    if (priority) task.priority = priority;
+    if (dueDate !== undefined) task.dueDate = dueDate || null;
+
+    // Handle assignee updates
+    if (assignedTo !== undefined) {
+      const batch = await Batch.findById(task.batch);
+
+      if (assignedTo === "ALL" && batch) {
+        task.assignees = batch.members?.map((member) => ({
+          user: member.user?._id || member.user || member._id,
+          status: "TODO",
+        })) || [];
+      } else if (assignedTo === "") {
+        task.assignees = [];
+      } else if (assignedTo) {
+        task.assignees = [{ user: assignedTo, status: "TODO" }];
+      }
+    }
+
+    await task.save();
+
+    const updatedTask = await Task.findById(id)
+      .populate("assignees.user", "name email image")
+      .populate("createdBy", "name");
+
+    res.json(updatedTask);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

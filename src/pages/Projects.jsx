@@ -90,8 +90,6 @@ export default function Projects() {
     filterProjects();
   }, [projects, searchTerm, filters]);
 
-  console.log("PROJECTS:", projects);
-
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}

@@ -91,7 +91,19 @@ export const getBatchById = async (req, res) => {
       progress = Math.round((completedTasks / tasks.length) * 100);
     }
 
-    res.json({ ...batch, progress });
+    // Add active task count for each member
+    const membersWithTaskCount = batch.members.map((member) => {
+      const memberId = member.user?._id?.toString() || member.user?.toString();
+      const activeTasks = tasks.filter((task) =>
+        task.assignees?.some((a) => {
+          const assigneeUserId = a.user?.toString();
+          return assigneeUserId === memberId && a.status !== "DONE";
+        })
+      ).length;
+      return { ...member, activeTasks };
+    });
+
+    res.json({ ...batch, members: membersWithTaskCount, progress });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -126,11 +138,54 @@ export const addBatchMembers = async (req, res) => {
 
     res.json(updatedBatch);
   } catch (err) {
-    console.log("ADD MEMBERS ERROR:", err);
-
     res.status(500).json({
       message: err.message,
     });
+  }
+};
+
+// REMOVE BATCH MEMBER
+export const removeBatchMember = async (req, res) => {
+  try {
+    const { id, memberId } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    const batch = await Batch.findById(id);
+
+    if (!batch) {
+      return res.status(404).json({ message: "Batch not found" });
+    }
+
+    // Only creator or admin can remove members
+    const isCreator = batch.createdBy.toString() === userId;
+    const isAdmin = userRole === "ADMIN";
+
+    if (!isCreator && !isAdmin) {
+      return res.status(403).json({ message: "Not authorized to remove members" });
+    }
+
+    // Remove member from batch
+    batch.members = batch.members.filter(
+      (m) => m.user.toString() !== memberId
+    );
+
+    await batch.save();
+
+    // Also remove the member from any task assignments in this batch
+    await Task.updateMany(
+      { batch: id },
+      { $pull: { assignees: { user: memberId } } }
+    );
+
+    const updatedBatch = await Batch.findById(id).populate(
+      "members.user",
+      "name email image"
+    );
+
+    res.json(updatedBatch);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -180,7 +235,39 @@ export const updateBatch = async (req, res) => {
 
     res.json(updatedBatch);
   } catch (err) {
-    console.log("UPDATE BATCH ERROR:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// DELETE BATCH
+export const deleteBatch = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    const batch = await Batch.findById(id);
+
+    if (!batch) {
+      return res.status(404).json({ message: "Batch not found" });
+    }
+
+    // Only creator or admin can delete
+    const isCreator = batch.createdBy.toString() === userId;
+    const isAdmin = userRole === "ADMIN";
+
+    if (!isCreator && !isAdmin) {
+      return res.status(403).json({ message: "Not authorized to delete this batch" });
+    }
+
+    // Delete all tasks associated with this batch
+    await Task.deleteMany({ batch: id });
+
+    // Delete the batch
+    await Batch.findByIdAndDelete(id);
+
+    res.json({ message: "Batch deleted successfully" });
+  } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };

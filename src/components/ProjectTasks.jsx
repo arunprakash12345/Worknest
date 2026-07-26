@@ -14,7 +14,9 @@ import {
   XIcon,
   Zap,
   UsersIcon,
+  Pencil,
 } from "lucide-react";
+import CreateTaskDialog from "./CreateTaskDialog";
 
 const typeIcons = {
   BUG: { icon: Bug, color: "text-red-600 dark:text-red-400" },
@@ -46,9 +48,11 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [selectedTasks, setSelectedTasks] = useState([]);
+  const [editingTask, setEditingTask] = useState(null);
   
   const user = JSON.parse(localStorage.getItem("user"));
   const isStudent = user?.role === "STUDENT";
+  const isMentor = user?.role === "MENTOR" || user?.role === "ADMIN";
 
   // Helper to get the display status for a task
   const getTaskDisplayStatus = (task) => {
@@ -67,7 +71,6 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
     priority: "",
     assignee: "",
   });
-  console.log(tasks);
   const assigneeList = useMemo(() => {
     return Array.from(
       new Set(
@@ -269,6 +272,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Assignee</th>
                   <th className="px-4 py-3">Due Date</th>
+                  {isMentor && <th className="px-4 py-3">Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -359,13 +363,27 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
                               : "No date"}
                           </div>
                         </td>
+                        {isMentor && (
+                          <td
+                            onClick={(e) => e.stopPropagation()}
+                            className="px-4 py-2"
+                          >
+                            <button
+                              onClick={() => setEditingTask(task)}
+                              className="p-1.5 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 transition"
+                              title="Edit task"
+                            >
+                              <Pencil className="size-4 text-zinc-500 dark:text-zinc-400" />
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     );
                   })
                 ) : (
                   <tr>
                     <td
-                      colSpan="7"
+                      colSpan={isMentor ? 8 : 7}
                       className="text-center text-zinc-500 dark:text-zinc-400 py-6"
                     >
                       No tasks found for the selected filters.
@@ -454,6 +472,16 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
                         ? format(new Date(task.dueDate), "dd MMM")
                         : "No date"}
                     </div>
+
+                    {isMentor && (
+                      <button
+                        onClick={() => setEditingTask(task)}
+                        className="mt-2 flex items-center gap-2 px-3 py-1.5 text-xs rounded border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                      >
+                        <Pencil className="size-3" />
+                        Edit Task
+                      </button>
+                    )}
                   </div>
                 );
               })
@@ -465,6 +493,20 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
           </div>
         </div>
       </div>
+
+      {/* Edit Task Dialog */}
+      {editingTask && (
+        <CreateTaskDialog
+          showCreateTask={!!editingTask}
+          setShowCreateTask={(show) => !show && setEditingTask(null)}
+          projectId={projectId}
+          onTaskCreated={() => {
+            setEditingTask(null);
+            onTaskUpdated();
+          }}
+          editTask={editingTask}
+        />
+      )}
     </div>
   );
 };

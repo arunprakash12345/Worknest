@@ -8,7 +8,9 @@ export default function CreateTaskDialog({
   setShowCreateTask,
   projectId,
   onTaskCreated,
+  editTask = null, // Pass task data to edit, null for create mode
 }) {
+  const isEditMode = !!editTask;
   const [batchMembers, setBatchMembers] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -21,6 +23,34 @@ export default function CreateTaskDialog({
     assignedTo: "",
     due_date: "",
   });
+
+  // Populate form when editing
+  useEffect(() => {
+    if (editTask) {
+      setFormData({
+        title: editTask.title || "",
+        description: editTask.description || "",
+        type: editTask.type || "TASK",
+        status: editTask.status || "TODO",
+        priority: editTask.priority || "MEDIUM",
+        assignedTo: editTask.assignees?.length > 1 
+          ? "ALL" 
+          : editTask.assignees?.[0]?.user?._id || editTask.assignees?.[0]?.user || "",
+        due_date: editTask.dueDate ? editTask.dueDate.split("T")[0] : "",
+      });
+    } else {
+      // Reset form for create mode
+      setFormData({
+        title: "",
+        description: "",
+        type: "TASK",
+        status: "TODO",
+        priority: "MEDIUM",
+        assignedTo: "",
+        due_date: "",
+      });
+    }
+  }, [editTask, showCreateTask]);
 
   // Fetch batch members when dialog opens
   useEffect(() => {
@@ -66,8 +96,15 @@ export default function CreateTaskDialog({
       setIsSubmitting(true);
 
       const token = localStorage.getItem("token");
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks`, {
-        method: "POST",
+      
+      const url = isEditMode
+        ? `${import.meta.env.VITE_API_URL}/tasks/${editTask._id || editTask.id}`
+        : `${import.meta.env.VITE_API_URL}/tasks`;
+
+      const method = isEditMode ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -86,9 +123,9 @@ export default function CreateTaskDialog({
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message);
+      if (!res.ok) throw new Error(data.message || `Failed to ${isEditMode ? "update" : "create"} task`);
 
-      toast.success("Task created 🚀");
+      toast.success(isEditMode ? "Task updated ✓" : "Task created 🚀");
       onTaskCreated && onTaskCreated();
 
       // reset
@@ -116,7 +153,9 @@ export default function CreateTaskDialog({
   return (
     <div className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur flex items-center justify-center z-50">
       <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 w-full max-w-lg relative">
-        <h2 className="text-xl font-medium mb-4">Create New Task</h2>
+        <h2 className="text-xl font-medium mb-4">
+          {isEditMode ? "Edit Task" : "Create New Task"}
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
@@ -251,7 +290,9 @@ export default function CreateTaskDialog({
               disabled={isSubmitting}
               className="px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition"
             >
-              {isSubmitting ? "Creating..." : "Create Task"}
+              {isSubmitting 
+                ? isEditMode ? "Updating..." : "Creating..." 
+                : isEditMode ? "Update Task" : "Create Task"}
             </button>
           </div>
         </form>

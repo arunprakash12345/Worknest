@@ -72,7 +72,6 @@ export const sendTaskAssignedEmail = async ({
 
     return response;
   } catch (error) {
-    console.log("TASK ASSIGN EMAIL ERROR:", error);
     throw error;
   }
 };
@@ -163,7 +162,6 @@ export const sendDiscussionEmail = async ({
 
     return response;
   } catch (error) {
-    console.log("DISCUSSION EMAIL ERROR:", error);
     throw error;
   }
 };

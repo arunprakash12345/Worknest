@@ -122,7 +122,7 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
 
       await loadComments();
     } catch (err) {
-      console.log(err);
+      // Error handled silently
     }
   };
 
@@ -134,7 +134,7 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
 
       setComments(data);
     } catch (err) {
-      console.log(err);
+      // Error handled silently
     }
   };
   useEffect(() => {
