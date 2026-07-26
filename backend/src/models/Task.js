@@ -13,7 +13,7 @@ const taskSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["TASK", "BUG", "FEATURE"],
+      enum: ["TASK"],
       default: "TASK",
     },
 

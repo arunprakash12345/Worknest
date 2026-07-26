@@ -18,19 +18,16 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-const typeColors = {
-  BUG: "bg-red-200 text-red-800 dark:bg-red-500 dark:text-red-900",
-  FEATURE: "bg-blue-200 text-blue-800 dark:bg-blue-500 dark:text-blue-900",
-  TASK: "bg-green-200 text-green-800 dark:bg-green-500 dark:text-green-900",
-  IMPROVEMENT:
-    "bg-purple-200 text-purple-800 dark:bg-purple-500 dark:text-purple-900",
-  OTHER: "bg-amber-200 text-amber-800 dark:bg-amber-500 dark:text-amber-900",
+const priorityColors = {
+  LOW: "bg-zinc-200 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-300",
+  MEDIUM: "bg-blue-200 text-blue-800 dark:bg-blue-500 dark:text-blue-100",
+  HIGH: "bg-red-200 text-red-800 dark:bg-red-500 dark:text-red-100",
 };
 
 const priorityBorders = {
   LOW: "border-zinc-300 dark:border-zinc-600",
-  MEDIUM: "border-amber-300 dark:border-amber-500",
-  HIGH: "border-orange-300 dark:border-orange-500",
+  MEDIUM: "border-blue-300 dark:border-blue-500",
+  HIGH: "border-red-300 dark:border-red-500",
 };
 
 const ProjectCalendar = ({ tasks = [] }) => {
@@ -171,16 +168,16 @@ const ProjectCalendar = ({ tasks = [] }) => {
 
                       <span
                         className={`px-2 py-0.5 rounded text-xs ${
-                          typeColors[task.type]
+                          priorityColors[task.priority]
                         }`}
                       >
-                        {task.type}
+                        {task.priority}
                       </span>
                     </div>
 
                     <div className="flex justify-between text-xs text-zinc-600 dark:text-zinc-400">
                       <span className="capitalize">
-                        {task.priority?.toLowerCase()} priority
+                        {task.status?.replace("_", " ").toLowerCase()}
                       </span>
 
                       {task.assignees?.length > 0 && (
@@ -226,10 +223,10 @@ const ProjectCalendar = ({ tasks = [] }) => {
 
                       <span
                         className={`text-xs px-2 py-0.5 rounded ${
-                          typeColors[task.type]
+                          priorityColors[task.priority]
                         }`}
                       >
-                        {task.type}
+                        {task.priority}
                       </span>
                     </div>
 
@@ -261,8 +258,8 @@ const ProjectCalendar = ({ tasks = [] }) => {
                     <div className="flex justify-between text-sm text-zinc-900 dark:text-white">
                       <span>{task.title}</span>
 
-                      <span className="text-xs px-2 py-0.5 rounded bg-red-200 dark:bg-red-500 text-red-900">
-                        {task.type}
+                      <span className={`text-xs px-2 py-0.5 rounded ${priorityColors[task.priority]}`}>
+                        {task.priority}
                       </span>
                     </div>
 

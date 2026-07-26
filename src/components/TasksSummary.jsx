@@ -92,7 +92,7 @@ export default function TasksSummary({ tasks = [] }) {
                       </h4>
 
                       <p className="text-xs text-gray-600 dark:text-zinc-400 capitalize mt-1">
-                        {issue.type} • {issue.priority} priority
+                        {issue.priority} priority
                       </p>
                     </div>
                   </Link>

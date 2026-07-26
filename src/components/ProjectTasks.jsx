@@ -5,42 +5,26 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteTask, updateTask } from "../features/workspaceSlice";
 import {
-  Bug,
   CalendarIcon,
-  GitCommit,
-  MessageSquare,
-  Square,
   Trash,
   XIcon,
-  Zap,
   UsersIcon,
   Pencil,
 } from "lucide-react";
 import CreateTaskDialog from "./CreateTaskDialog";
 
-const typeIcons = {
-  BUG: { icon: Bug, color: "text-red-600 dark:text-red-400" },
-  FEATURE: { icon: Zap, color: "text-blue-600 dark:text-blue-400" },
-  TASK: { icon: Square, color: "text-green-600 dark:text-green-400" },
-  IMPROVEMENT: {
-    icon: GitCommit,
-    color: "text-purple-600 dark:text-purple-400",
-  },
-  OTHER: { icon: MessageSquare, color: "text-amber-600 dark:text-amber-400" },
-};
-
 const priorityTexts = {
   LOW: {
-    background: "bg-red-100 dark:bg-red-950",
-    prioritycolor: "text-red-600 dark:text-red-400",
+    background: "bg-zinc-100 dark:bg-zinc-800",
+    prioritycolor: "text-zinc-600 dark:text-zinc-400",
   },
   MEDIUM: {
     background: "bg-blue-100 dark:bg-blue-950",
     prioritycolor: "text-blue-600 dark:text-blue-400",
   },
   HIGH: {
-    background: "bg-emerald-100 dark:bg-emerald-950",
-    prioritycolor: "text-emerald-600 dark:text-emerald-400",
+    background: "bg-red-100 dark:bg-red-950",
+    prioritycolor: "text-red-600 dark:text-red-400",
   },
 };
 
@@ -67,7 +51,6 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
 
   const [filters, setFilters] = useState({
     status: "",
-    type: "",
     priority: "",
     assignee: "",
   });
@@ -84,10 +67,9 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
-      const { status, type, priority, assignee } = filters;
+      const { status, priority, assignee } = filters;
       return (
         (!status || task.status === status) &&
-        (!type || task.type === type) &&
         (!priority || task.priority === priority) &&
         (!assignee || task.assignees?.some((a) => a.user?.name === assignee))
       );
@@ -176,21 +158,13 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
     <div>
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-4">
-        {["status", "type", "priority", "assignee"].map((name) => {
+        {["status", "priority", "assignee"].map((name) => {
           const options = {
             status: [
               { label: "All Statuses", value: "" },
               { label: "To Do", value: "TODO" },
               { label: "In Progress", value: "IN_PROGRESS" },
               { label: "Done", value: "DONE" },
-            ],
-            type: [
-              { label: "All Types", value: "" },
-              { label: "Task", value: "TASK" },
-              { label: "Bug", value: "BUG" },
-              { label: "Feature", value: "FEATURE" },
-              { label: "Improvement", value: "IMPROVEMENT" },
-              { label: "Other", value: "OTHER" },
             ],
             priority: [
               { label: "All Priorities", value: "" },
@@ -221,13 +195,12 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
 
         {/* Reset filters */}
         {(filters.status ||
-          filters.type ||
           filters.priority ||
           filters.assignee) && (
           <button
             type="button"
             onClick={() =>
-              setFilters({ status: "", type: "", priority: "", assignee: "" })
+              setFilters({ status: "", priority: "", assignee: "" })
             }
             className="px-3 py-1 flex items-center gap-2 rounded bg-gradient-to-br from-purple-400 to-purple-500 text-zinc-100 dark:text-zinc-200 text-sm transition-colors"
           >
@@ -267,7 +240,6 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
                     />
                   </th>
                   <th className="px-4 pl-0 py-3">Title</th>
-                  <th className="px-4 py-3">Type</th>
                   <th className="px-4 py-3">Priority</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Assignee</th>
@@ -278,7 +250,6 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
               <tbody>
                 {filteredTasks.length > 0 ? (
                   filteredTasks.map((task) => {
-                    const { icon: Icon, color } = typeIcons[task.type] || {};
                     const { background, prioritycolor } =
                       priorityTexts[task.priority] || {};
 
@@ -313,14 +284,6 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
                           />
                         </td>
                         <td className="px-4 pl-0 py-2">{task.title}</td>
-                        <td className="px-4 py-2">
-                          <div className="flex items-center gap-2">
-                            {Icon && <Icon className={`size-4 ${color}`} />}
-                            <span className={`uppercase text-xs ${color}`}>
-                              {task.type}
-                            </span>
-                          </div>
-                        </td>
                         <td className="px-4 py-2">
                           <span
                             className={`text-xs px-2 py-1 rounded ${background} ${prioritycolor}`}
@@ -383,7 +346,7 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
                 ) : (
                   <tr>
                     <td
-                      colSpan={isMentor ? 8 : 7}
+                      colSpan={isMentor ? 7 : 6}
                       className="text-center text-zinc-500 dark:text-zinc-400 py-6"
                     >
                       No tasks found for the selected filters.
@@ -398,7 +361,6 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
           <div className="lg:hidden flex flex-col gap-4">
             {filteredTasks.length > 0 ? (
               filteredTasks.map((task) => {
-                const { icon: Icon, color } = typeIcons[task.type] || {};
                 const { background, prioritycolor } =
                   priorityTexts[task.priority] || {};
 
@@ -423,11 +385,6 @@ const ProjectTasks = ({ tasks, onTaskUpdated, projectId }) => {
                         }
                         checked={selectedTasks.includes(task._id)}
                       />
-                    </div>
-
-                    <div className="text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
-                      {Icon && <Icon className={`size-4 ${color}`} />}
-                      <span className={`${color} uppercase`}>{task.type}</span>
                     </div>
 
                     <div>
