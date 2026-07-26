@@ -8,8 +8,11 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [isMentor, setIsMentor] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const handleSignup = async () => {
+    setIsLoading(true);
+    try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
       method: "POST",
       headers: {
@@ -35,8 +38,13 @@ const Auth = () => {
     } else {
       toast.error(data.message);
     }
+    } finally {
+      setIsLoading(false);
+    }
   };
   const handleLogin = async () => {
+    setIsLoading(true);
+    try {
     // console.log("LOGIN CLICKED");
     const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
       method: "POST",
@@ -60,6 +68,9 @@ const Auth = () => {
       navigate("/", { replace: true });
     } else {
       toast.error(data.message);
+    }
+    } finally {
+      setIsLoading(false);
     }
   };
   useEffect(() => {
@@ -135,10 +146,11 @@ const Auth = () => {
             )}
 
             <button
-              className="w-full mt-6 bg-slate-900 text-white py-2 rounded-md hover:bg-slate-800 transition"
+              className="w-full mt-6 bg-slate-900 text-white py-2 rounded-md hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={isLogin ? handleLogin : handleSignup}
+              disabled={isLoading}
             >
-              {isLogin ? "Login" : "Create Account"}
+              {isLoading ? (isLogin ? "Logging in..." : "Creating...") : (isLogin ? "Login" : "Create Account")}
             </button>
             <p className="text-sm text-center text-gray-500 mt-6">
               {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}

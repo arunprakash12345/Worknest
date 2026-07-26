@@ -11,6 +11,7 @@ function MyTasksSidebar() {
   const location = useLocation();
   const [showMyTasks, setShowMyTasks] = useState(false);
   const [myTasks, setMyTasks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const toggleMyTasks = () => setShowMyTasks((prev) => !prev);
 
@@ -34,6 +35,7 @@ function MyTasksSidebar() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
+        setLoading(true);
         const token = localStorage.getItem("token");
         if (!token) return;
 
@@ -41,6 +43,8 @@ function MyTasksSidebar() {
         setMyTasks(data);
       } catch (err) {
         // Error handled silently
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -75,7 +79,11 @@ function MyTasksSidebar() {
       {showMyTasks && (
         <div className="mt-2 pl-2">
           <div className="space-y-1">
-            {myTasks.length === 0 ? (
+            {loading ? (
+              <div className="px-3 py-2 text-xs text-gray-500 dark:text-zinc-500 text-center">
+                Loading tasks...
+              </div>
+            ) : myTasks.length === 0 ? (
               <div className="px-3 py-2 text-xs text-gray-500 dark:text-zinc-500 text-center">
                 No tasks assigned
               </div>

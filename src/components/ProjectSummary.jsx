@@ -43,6 +43,8 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [postingComment, setPostingComment] = useState(false);
 
   useEffect(() => {
     if (!tasks?.length) return;
@@ -62,6 +64,19 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
     // Fallback to first task
     setSelectedTaskId(tasks[0]._id);
   }, [tasks, selectedTaskIdFromUrl]);
+
+  // Handle empty tasks
+  if (!tasks || tasks.length === 0) {
+    return (
+      <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-950 p-12 text-center">
+        <div className="w-16 h-16 mx-auto mb-4 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
+          <MessageCircle className="w-8 h-8 text-zinc-400" />
+        </div>
+        <h3 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">No tasks yet</h3>
+        <p className="text-zinc-500 dark:text-zinc-400 text-sm">Create a task to view summaries and discussions</p>
+      </div>
+    );
+  }
 
   // CURRENT SELECTED TASK
   const selectedTask = useMemo(() => {
@@ -116,6 +131,7 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
     try {
       if (!commentText.trim()) return;
 
+      setPostingComment(true);
       await createTaskComment(selectedTask._id, commentText);
 
       setCommentText("");
@@ -123,6 +139,8 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
       await loadComments();
     } catch (err) {
       // Error handled silently
+    } finally {
+      setPostingComment(false);
     }
   };
 
@@ -130,11 +148,14 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
     try {
       if (!selectedTask) return;
 
+      setLoadingComments(true);
       const data = await getTaskComments(selectedTask._id);
 
       setComments(data);
     } catch (err) {
       // Error handled silently
+    } finally {
+      setLoadingComments(false);
     }
   };
   useEffect(() => {
@@ -311,7 +332,11 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
 
           {/* EMPTY STATE */}
           <div className="flex-1 overflow-y-auto p-5">
-            {comments.length === 0 ? (
+            {loadingComments ? (
+              <div className="h-full flex items-center justify-center">
+                <div className="text-sm text-zinc-500">Loading comments...</div>
+              </div>
+            ) : comments.length === 0 ? (
               <div className="h-full flex items-center justify-center">
                 <div className="text-center">
                   <div className="mx-auto mb-4 size-14 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
@@ -372,9 +397,10 @@ const ProjectSummary = ({ tasks, selectedTaskIdFromUrl }) => {
 
               <button
                 onClick={handlePostComment}
-                className="px-5 py-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm hover:opacity-90 transition"
+                disabled={postingComment || !commentText.trim()}
+                className="px-5 py-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm hover:opacity-90 transition disabled:opacity-50"
               >
-                Post
+                {postingComment ? "Posting..." : "Post"}
               </button>
             </div>
           </div>

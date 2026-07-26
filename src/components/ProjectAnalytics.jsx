@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { CheckCircle, Clock, AlertTriangle, Users, ArrowRightIcon } from "lucide-react";
+import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { CheckCircle, Clock, AlertTriangle, Users, ArrowRightIcon, BarChart3 } from "lucide-react";
 
 // Colors for charts and priorities
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
@@ -11,6 +11,19 @@ const PRIORITY_COLORS = {
 };
 
 const ProjectAnalytics = ({ project, tasks }) => {
+    // Handle empty tasks array
+    if (!tasks || tasks.length === 0) {
+        return (
+            <div className="not-dark:bg-white dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-12 text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
+                    <BarChart3 className="w-8 h-8 text-zinc-400" />
+                </div>
+                <h3 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">No analytics yet</h3>
+                <p className="text-zinc-500 dark:text-zinc-400 text-sm">Create some tasks to see analytics and insights</p>
+            </div>
+        );
+    }
+
     const { stats, statusData, typeData, priorityData } = useMemo(() => {
         const now = new Date();
         const total = tasks.length;
@@ -109,7 +122,7 @@ const ProjectAnalytics = ({ project, tasks }) => {
                 <div className="not-dark:bg-white dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-6">
                     <h2 className="text-zinc-900 dark:text-white mb-4 font-medium">Tasks by Status</h2>
                     <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={statusData}>
+                        <RechartsBarChart data={statusData}>
                             <XAxis
                                 dataKey="name"
                                 tick={{ fill: "#52525b", fontSize: 12 }}
@@ -118,7 +131,7 @@ const ProjectAnalytics = ({ project, tasks }) => {
                             />
                             <YAxis tick={{ fill: "#52525b", fontSize: 12 }} axisLine={{ stroke: "#d4d4d8" }} />
                             <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                        </BarChart>
+                        </RechartsBarChart>
                     </ResponsiveContainer>
                 </div>
 
