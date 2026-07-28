@@ -2,7 +2,7 @@
 
 WorkNest is a full-stack task management platform built with React, Node.js, Express, and MongoDB that streamlines task assignment, collaboration, and progress tracking through secure JWT-based authentication and role-based access control.
 
-**[Live Demo](https://worknest-psi-nine.vercel.app/auth)** • **[Report Bug](https://github.com/arunprakash12345/Worknest/issues)**
+**[🌐 Live Demo](https://worknest-psi-nine.vercel.app/auth)** • **[📂 Source Code](https://github.com/arunprakash12345/Worknest)** • **[🐞 Report Bug](https://github.com/arunprakash12345/Worknest/issues)**
 
 ## Login Screen
 ![WorkNest Login](src/assets/loginWorknest.png)
@@ -14,17 +14,17 @@ WorkNest is a full-stack task management platform built with React, Node.js, Exp
 
 ## Why I Built This
 
-Managing mentor-student cohorts often involves scattered communication, missed deadlines, and limited visibility into progress. WorkNest was built to centralize task assignment, collaboration, and progress tracking in a single application.
+Managing mentor-student cohorts often involves scattered communication, missed deadlines, and limited visibility into progress. WorkNest was built to centralize task management, collaboration, and progress tracking into a single, easy-to-use platform for both mentors and students.
 
 ---
 
-### Key Capabilities
+## Key Capabilities
 
-- Secure JWT-based authentication
+- Secure JWT-based authentication and authorization
 - Role-based dashboards for mentors and students
-- Task assignment and progress tracking
+- Task assignment, tracking, and collaboration workflows
 - RESTful backend with MongoDB persistence
-- Responsive UI built with React
+- Responsive React frontend with Redux Toolkit state management
 
   
 ## Features
@@ -39,29 +39,29 @@ Managing mentor-student cohorts often involves scattered communication, missed d
 - **Dark mode** — Enhanced usability in low-light environments
 
 ## Highlights
-✔ JWT Authentication
-✔ Role-Based Access Control (RBAC)
-✔ Protected Routes
-✔ Responsive Design
-✔ RESTful APIs
-✔ Redux Toolkit State Management
-✔ MongoDB Persistence
+
+- JWT Authentication
+- Role-Based Access Control (RBAC)
+- Protected Routes
+- Responsive Design
+- RESTful APIs
+- Redux Toolkit State Management
+- MongoDB Persistence
 
 
 ## Tech Stack
 
-| Frontend | Backend | Database |
-|----------|---------|----------|
-| React 19 | Express 5 | MongoDB |
-| Redux Toolkit | JWT Auth | Mongoose |
-| React Router v7 | RBAC Middleware | |
-| Tailwind CSS | Node.js | |
-| Recharts | | |
+| Category | Technologies |
+|----------|--------------|
+| Frontend | React 19, Redux Toolkit, React Router v7, Tailwind CSS, Recharts |
+| Backend | Node.js, Express 5, JWT Authentication, RBAC Middleware |
+| Database | MongoDB, Mongoose |
 | Deployment | Vercel, Render |
 
 ---
 ## Architecture
 
+```text
 React Client
       │
       ▼
@@ -72,6 +72,7 @@ JWT Authentication
       │
       ▼
 MongoDB Database
+```
 
 ## Run Locally
 
@@ -127,15 +128,15 @@ GET    /api/tasks/my-tasks    # User's assigned tasks
 
 ---
 
-## Challenges & Learnings
+## Engineering Learnings
 
-During this project I learned how to:
+During the development of WorkNest, I gained hands-on experience with:
 
-- Design secure authentication using JWT.
-- Implement Role-Based Access Control (RBAC).
-- Structure a scalable Express backend with modular routing.
-- Manage complex client-side state using Redux Toolkit.
-- Build and consume RESTful APIs between frontend and backend.
+- Designing secure authentication using JWT.
+- Implementing Role-Based Access Control (RBAC).
+- Structuring a scalable Express backend using modular architecture.
+- Managing complex application state with Redux Toolkit.
+- Building and integrating RESTful APIs between the frontend and backend.
 
 ## What's Next
 
@@ -157,4 +158,4 @@ During this project I learned how to:
 ## License
 This project is licensed under the MIT License.
 
-*Built to explore scalable task management workflows, secure authentication, and collaborative project management using a modern full-stack architecture.*
+*> Built to demonstrate modern full-stack development practices using React, Node.js, Express, MongoDB, and secure authentication.*
