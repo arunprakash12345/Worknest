@@ -2,7 +2,6 @@ import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import StatsGrid from "../components/StatsGrid";
 import ProjectOverview from "../components/ProjectOverview";
-import RecentActivity from "../components/RecentActivity";
 import TasksSummary from "../components/TasksSummary";
 import CreateProjectDialog from "../components/CreateProjectDialog";
 import { useNavigate } from "react-router-dom";
@@ -117,9 +116,6 @@ const Dashboard = () => {
         {/* LEFT */}
         <div className="lg:col-span-2 space-y-8">
           <ProjectOverview projects={projects} onBatchCreated={fetchProjects} />
-
-          {/* OPTIONAL */}
-          {/* <RecentActivity /> */}
         </div>
 
         {/* RIGHT */}
