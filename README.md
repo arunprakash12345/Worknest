@@ -1,21 +1,32 @@
-# WorkNest
+# WorkNest – Full-Stack Task Management Platform
 
-A task management platform for mentor-student cohorts. Mentors create batches, assign tasks, track progress. Students see what's due and get it done.
+WorkNest is a full-stack task management platform built with React, Node.js, Express, and MongoDB that streamlines task assignment, collaboration, and progress tracking through secure JWT-based authentication and role-based access control.
 
 **[Live Demo](https://worknest-psi-nine.vercel.app/auth)** • **[Report Bug](https://github.com/arunprakash12345/Worknest/issues)**
 
+## Login Screen
 ![WorkNest Login](src/assets/loginWorknest.png)
 
+## Dashboard
 ![WorkNest Dashboard](src/assets/homeWorkNest.png)
 
 ---
 
 ## Why I Built This
 
-Managing cohorts is chaotic. Assignments get lost in Slack, deadlines slip, feedback loops are slow. I wanted one place where mentors can assign work and students can track it — no noise, just clarity.
+Managing mentor-student cohorts often involves scattered communication, missed deadlines, and limited visibility into progress. WorkNest was built to centralize task assignment, collaboration, and progress tracking in a single application.
 
 ---
 
+### Key Capabilities
+
+- Secure JWT-based authentication
+- Role-based dashboards for mentors and students
+- Task assignment and progress tracking
+- RESTful backend with MongoDB persistence
+- Responsive UI built with React
+
+  
 ## Features
 
 - **Role-based access** — Mentors and students see different dashboards
@@ -25,9 +36,17 @@ Managing cohorts is chaotic. Assignments get lost in Slack, deadlines slip, feed
 - **Calendar view** — Never miss a deadline
 - **Analytics** — Charts showing completion rates, task distribution
 - **Global search** — Find any batch or task instantly
-- **Dark mode** — Because we code at night
+- **Dark mode** — Enhanced usability in low-light environments
 
----
+## Highlights
+✔ JWT Authentication
+✔ Role-Based Access Control (RBAC)
+✔ Protected Routes
+✔ Responsive Design
+✔ RESTful APIs
+✔ Redux Toolkit State Management
+✔ MongoDB Persistence
+
 
 ## Tech Stack
 
@@ -38,8 +57,21 @@ Managing cohorts is chaotic. Assignments get lost in Slack, deadlines slip, feed
 | React Router v7 | RBAC Middleware | |
 | Tailwind CSS | Node.js | |
 | Recharts | | |
+| Deployment | Vercel, Render |
 
 ---
+## Architecture
+
+React Client
+      │
+      ▼
+Express REST API
+      │
+      ▼
+JWT Authentication
+      │
+      ▼
+MongoDB Database
 
 ## Run Locally
 
@@ -80,7 +112,7 @@ cd .. && npm run dev      # Frontend on :5173
 
 ---
 
-## API Endpoints
+## REST API Overview
 
 ```
 POST   /api/auth/register     # Sign up
@@ -95,19 +127,34 @@ GET    /api/tasks/my-tasks    # User's assigned tasks
 
 ---
 
+## Challenges & Learnings
+
+During this project I learned how to:
+
+- Design secure authentication using JWT.
+- Implement Role-Based Access Control (RBAC).
+- Structure a scalable Express backend with modular routing.
+- Manage complex client-side state using Redux Toolkit.
+- Build and consume RESTful APIs between frontend and backend.
+
 ## What's Next
 
 - [ ] Real-time notifications
 - [ ] File attachments
+- [ ] Activity timeline
+- [ ] Audit logs
+- [ ] Email notifications
 - [ ] GitHub PR integration
-- [ ] Email notifications on assignment
+      
 
 ---
 
-## Author
+## Connect
 
 **Arun Prakash** — [LinkedIn](https://www.linkedin.com/in/arunprakashux/)
 
 ---
+## License
+This project is licensed under the MIT License.
 
-*Built to solve a real problem I faced while mentoring.*
+*Built to explore scalable task management workflows, secure authentication, and collaborative project management using a modern full-stack architecture.*
